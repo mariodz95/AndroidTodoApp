@@ -1,7 +1,9 @@
 package com.example.todoapp.model
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.example.todoapp.R
 import com.example.todoapp.database.entity.Todo
@@ -9,6 +11,12 @@ import com.example.todoapp.repository.TodoRepository
 import java.util.*
 
 class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
+/*
+    val todoList: MutableState<List<Todo>?> = mutableStateOf(ArrayList())
+*/
+
+    var todoList: LiveData<List<Todo>>? = null
+
     var displayTaskDetails = mutableStateOf(false)
     var taskName = mutableStateOf("")
     var taskDetail = mutableStateOf("")
@@ -30,10 +38,13 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     var selectedHour =  mutableStateOf(0)
     var selectedMinute =  mutableStateOf(0)
 
-
     var selectedDay = mutableStateOf(0)
     var selectedMonth = mutableStateOf(0)
     var selectedYear = mutableStateOf(0)
+
+    init{
+        getAllTodos()
+    }
 
     fun taskDetailDisplayChange(){
         displayTaskDetails.value = if(displayTaskDetails.value) false else true
@@ -50,6 +61,9 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     fun clearValues(){
         taskName.value = ""
         taskDetail.value = ""
+        removeCategory()
+        removeDate()
+        displayTaskDetails.value = false
     }
 
     fun onExpand(expand: Boolean){
@@ -71,12 +85,15 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         selectedYear.value = year
     }
 
+    fun removeCategory(){
+        selectedIndex.value = -1
+    }
+
+    fun removeDate(){
+        selectedDay.value = 0
+    }
+
     fun insertTodo(){
-        Log.v("sada", " taskName.value: ${ taskName.value}" )
-        Log.v("sada", " taskDetail.value: ${ taskDetail.value}" )
-        Log.v("sada", " selectedIndex.value: ${ selectedIndex.value}" )
-
-
         val todo = Todo(
             UUID.randomUUID(),
             taskName.value,
@@ -85,7 +102,11 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
             Calendar.getInstance().getTime()
         )
 
-        Log.v("sada", "todo item $todo" )
+        Log.v("sada", "test test $todo")
         repository.insertTodo(todo)
+    }
+
+    fun getAllTodos(){
+        todoList = repository.getAllTodos()
     }
 }

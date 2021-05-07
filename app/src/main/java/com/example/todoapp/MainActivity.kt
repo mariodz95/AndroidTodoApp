@@ -2,16 +2,20 @@ package com.example.todoapp
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,14 +23,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.lifecycle.ViewModelProvider
-import com.example.todoapp.components.DrawerButtonsContent
-import com.example.todoapp.components.DrawerDateAndCategoryContent
-import com.example.todoapp.components.Dropdown
-import com.example.todoapp.components.TaskFormTextField
+import com.example.todoapp.components.*
+import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
 import com.example.todoapp.model.TodoViewModelFactory
 import com.example.todoapp.repository.TodoRepository
@@ -124,7 +127,8 @@ fun HomeContent(
     focusRequester: FocusRequester,
     displayTaskDetails: Boolean,
     clearValues : () -> Unit,
-    todoViewModel: TodoViewModel
+    todoViewModel: TodoViewModel,
+
 ){
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -152,8 +156,8 @@ fun HomeContent(
                         onValueChange = onTaskNameChange,
 
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                     if(displayTaskDetails) {
+                        Spacer(modifier = Modifier.height(16.dp))
                         TaskFormTextField(
                             focusRequester = focusRequester,
                             coroutineScope = coroutineScope,
@@ -167,13 +171,12 @@ fun HomeContent(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     DrawerDateAndCategoryContent(todoViewModel = todoViewModel)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    DrawerButtonsContent(todoViewModel = todoViewModel)
+                    DrawerButtonsContent(todoViewModel = todoViewModel, bottomSheetScaffoldState, coroutineScope,
+                    )
                 }
             }
         }, sheetPeekHeight = 0.dp
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,12 +187,16 @@ fun HomeContent(
                             keyboardController?.hide()
                             bottomSheetScaffoldState.bottomSheetState.collapse()
                             clearValues()
+
                         },
                     )
                 },
-            verticalArrangement = Arrangement.Bottom,
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            TodoListContent(
+                todoViewModel = todoViewModel
+            )
             FloatingActionButton(
                 modifier = Modifier.padding(10.dp),
                 onClick =  {
@@ -206,4 +213,5 @@ fun HomeContent(
         }
     }
 }
+
 

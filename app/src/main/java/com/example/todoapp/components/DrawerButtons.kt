@@ -2,22 +2,30 @@ package com.example.todoapp.components
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.todoapp.model.TodoViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.*
 
+@ExperimentalMaterialApi
 @Composable
-fun DrawerButtonsContent(todoViewModel: TodoViewModel){
+fun DrawerButtonsContent(
+    todoViewModel: TodoViewModel,
+    bottomSheetScaffoldState: BottomSheetScaffoldState,
+    coroutineScope: CoroutineScope
+    ){
     val c = Calendar.getInstance()
     val year = c.get(Calendar.YEAR)
     val month = c.get(Calendar.MONTH)
@@ -25,6 +33,8 @@ fun DrawerButtonsContent(todoViewModel: TodoViewModel){
     val mHour = c[Calendar.HOUR_OF_DAY]
     val mMinute = c[Calendar.MINUTE]
     val context = LocalContext.current
+
+    val taskName = todoViewModel.taskName.value
 
     val datePickerDialog = DatePickerDialog(
         context, DatePickerDialog.OnDateSetListener
@@ -40,24 +50,33 @@ fun DrawerButtonsContent(todoViewModel: TodoViewModel){
         }, mHour, mMinute, false
     )
 
+    Log.v("sada", "tasknama $taskName ${taskName == ""}")
+
     Buttons(
         taskDetailDisplayChange = {todoViewModel.taskDetailDisplayChange()},
         onExpand = {todoViewModel.onExpand(it)},
         timePickerDialog = timePickerDialog,
         datePickerDialog = datePickerDialog,
-        insertTodo = {todoViewModel.insertTodo()}
-    )
+        insertTodo = {todoViewModel.insertTodo()},
+        taskName = taskName,
+        bottomSheetScaffoldState = bottomSheetScaffoldState,
+        coroutineScope = coroutineScope,
+        )
 
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun Buttons(
     taskDetailDisplayChange: () -> Unit,
     onExpand: (Boolean) -> Unit,
     timePickerDialog: TimePickerDialog,
     datePickerDialog: DatePickerDialog,
-    insertTodo: () -> Unit
-){
+    insertTodo: () -> Unit,
+    taskName: String,
+    bottomSheetScaffoldState: BottomSheetScaffoldState,
+    coroutineScope: CoroutineScope,
+    ){
 
     Row(){
         IconButton(
@@ -65,7 +84,8 @@ fun Buttons(
         ){
             Icon(
                 Icons.Filled.Add,
-                contentDescription = ""
+                contentDescription = "",
+                tint = Color.Blue
             )
         }
         IconButton(
@@ -73,7 +93,8 @@ fun Buttons(
         ){
             Icon(
                 Icons.Filled.Star,
-                contentDescription = ""
+                contentDescription = "",
+                tint = Color.Blue
             )
         }
         IconButton(
@@ -84,16 +105,22 @@ fun Buttons(
         ){
             Icon(
                 Icons.Filled.DateRange,
-                contentDescription = ""
+                contentDescription = "",
+                tint = Color.Blue
             )
         }
-
         IconButton(
-            onClick = {insertTodo()},
+            onClick = {
+                coroutineScope.launch {
+                    insertTodo()
+                    bottomSheetScaffoldState.bottomSheetState.collapse()
+                }},
+            enabled = if(taskName == "") false else true,
         ){
             Icon(
                 Icons.Filled.Send,
-                contentDescription = ""
+                contentDescription = "",
+                tint = if(taskName == "") Color.Gray else Color.Blue
             )
         }
     }
