@@ -6,10 +6,9 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -23,10 +22,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.example.todoapp.components.*
 import com.example.todoapp.database.entity.Todo
@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
             }
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
@@ -76,6 +77,11 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
     var expanded = todoViewModel.expanded.value
     val items = todoViewModel.items
     val itemsIcons = todoViewModel.itemsIcons
+
+    var isCollapsed = todoViewModel.isCollapsed.value
+
+    val unfinishedTodoList: List<Todo> by todoViewModel.todoList.observeAsState(listOf())
+    val finishedTodoList: List<Todo> by todoViewModel.finishedTodoList.observeAsState(listOf())
 
     Scaffold(
         topBar = { TopAppBar(
@@ -99,7 +105,11 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
                 focusRequester = focusRequester,
                 displayTaskDetails = displayTaskDetails,
                 clearValues = {todoViewModel.clearValues()},
-                todoViewModel = todoViewModel
+                todoViewModel = todoViewModel,
+                isCollapsed = isCollapsed,
+                collapse = {todoViewModel.collapse()},
+                unfinishedTodoList = unfinishedTodoList,
+                finishedTodoList = finishedTodoList
             )
 
             Dropdown(
@@ -113,6 +123,7 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
@@ -128,7 +139,10 @@ fun HomeContent(
     displayTaskDetails: Boolean,
     clearValues : () -> Unit,
     todoViewModel: TodoViewModel,
-
+    isCollapsed: Boolean,
+    collapse: () -> Unit,
+    unfinishedTodoList: List<Todo>,
+    finishedTodoList: List<Todo>
 ){
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -191,24 +205,54 @@ fun HomeContent(
                         },
                     )
                 },
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            TodoListContent(
-                todoViewModel = todoViewModel
-            )
-            FloatingActionButton(
-                modifier = Modifier.padding(10.dp),
-                onClick =  {
-                    coroutineScope.launch {
-                        focusRequester.requestFocus()
-                        bottomSheetScaffoldState.bottomSheetState.expand()
+            Column() {
+                TodoListContent(
+                    todoViewModel = todoViewModel,
+                    todoList = unfinishedTodoList
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            collapse()
+                        }
+                        .padding(10.dp)
+                ){
+                    Text("Done", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    IconButton(onClick = {collapse() }) {
+
+                        Icon(if(isCollapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp, "")
                     }
-                },
-                backgroundColor = Color(0xFF1976D2),
-                shape = CircleShape,
-            ){
-                Icon(Icons.Filled.Add, "")
+                }
+                if(isCollapsed) {
+                    TodoListContent(
+                        todoViewModel = todoViewModel,
+                        todoList = finishedTodoList
+                    )
+                }
+            }
+
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+            ) {
+                FloatingActionButton(
+                    modifier = Modifier.padding(10.dp),
+                    onClick =  {
+                        coroutineScope.launch {
+                            focusRequester.requestFocus()
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                    backgroundColor = Color(0xFF1976D2),
+                    shape = CircleShape,
+                ){
+                    Icon(Icons.Filled.Add, "")
+                }
             }
         }
     }

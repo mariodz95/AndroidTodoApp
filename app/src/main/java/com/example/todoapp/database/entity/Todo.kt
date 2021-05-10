@@ -12,5 +12,6 @@ data class Todo (
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "details") val details: String?,
     @ColumnInfo(name = "category") val category: String?,
-    @ColumnInfo(name = "dateAdded") val dateAdded: Date?
+    @ColumnInfo(name = "dateAdded") val dateAdded: Date?,
+    @ColumnInfo(name = "isDone") val isDone: Boolean = false
 )

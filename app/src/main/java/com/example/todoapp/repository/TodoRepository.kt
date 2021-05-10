@@ -1,12 +1,10 @@
 package com.example.todoapp.repository
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+
 import androidx.lifecycle.LiveData
 import com.example.todoapp.database.dao.TodoDao
 import com.example.todoapp.database.entity.Todo
-import com.example.todoapp.di.repositoryModule
+import java.util.*
 
 class TodoRepository(private val todoDao: TodoDao ) {
 
@@ -14,9 +12,11 @@ class TodoRepository(private val todoDao: TodoDao ) {
         todoDao.insertTodo(todo)
     }
 
-    fun getAllTodos(): LiveData<List<Todo>>{
-        val test = todoDao.getAllTodos()
-        Log.v("sada", "repos lista : ${test.value}")
-        return todoDao.getAllTodos()
+    fun getAllTodos(doneStatus: Int): LiveData<MutableList<Todo>>{
+        return todoDao.getAllTodos(doneStatus)
+    }
+
+    fun updateTodoCheckStatus(checkStatus: Boolean, id: UUID){
+        todoDao.updateTodoCheckStatus(checkStatus, id)
     }
 }

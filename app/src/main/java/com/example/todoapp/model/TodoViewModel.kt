@@ -1,9 +1,8 @@
 package com.example.todoapp.model
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.todoapp.R
 import com.example.todoapp.database.entity.Todo
@@ -11,11 +10,11 @@ import com.example.todoapp.repository.TodoRepository
 import java.util.*
 
 class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
-/*
-    val todoList: MutableState<List<Todo>?> = mutableStateOf(ArrayList())
-*/
+    var todoList: LiveData<MutableList<Todo>> =  MutableLiveData<MutableList<Todo>>()
+    var finishedTodoList: LiveData<MutableList<Todo>> =  MutableLiveData<MutableList<Todo>>()
 
-    var todoList: LiveData<List<Todo>>? = null
+
+    var isCollapsed = mutableStateOf(false)
 
     var displayTaskDetails = mutableStateOf(false)
     var taskName = mutableStateOf("")
@@ -43,7 +42,12 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     var selectedYear = mutableStateOf(0)
 
     init{
-        getAllTodos()
+        getAllTodos(0)
+        getAllTodos(1)
+    }
+
+    fun collapse(){
+        isCollapsed.value = if(isCollapsed.value) false else true
     }
 
     fun taskDetailDisplayChange(){
@@ -102,11 +106,18 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
             Calendar.getInstance().getTime()
         )
 
-        Log.v("sada", "test test $todo")
         repository.insertTodo(todo)
     }
 
-    fun getAllTodos(){
-        todoList = repository.getAllTodos()
+    fun getAllTodos(doneStatus: Int){
+        if(doneStatus == 0) {
+            todoList = repository.getAllTodos(doneStatus)
+        }else{
+            finishedTodoList = repository.getAllTodos(1)
+        }
+    }
+
+    fun checkTodo(todo: Todo){
+        repository.updateTodoCheckStatus(if(todo.isDone) false else true, todo.id)
     }
 }
