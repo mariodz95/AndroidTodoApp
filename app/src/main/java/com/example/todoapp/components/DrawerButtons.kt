@@ -1,8 +1,9 @@
 package com.example.todoapp.components
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.app.*
+import android.os.Build
 import android.widget.DatePicker
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import com.example.todoapp.model.TodoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
+
 
 @ExperimentalMaterialApi
 @Composable
@@ -58,11 +60,11 @@ fun DrawerButtonsContent(
         taskName = taskName,
         bottomSheetScaffoldState = bottomSheetScaffoldState,
         coroutineScope = coroutineScope,
-        clearValues = {todoViewModel.clearValues()}
+        clearValues = {todoViewModel.clearValues()},
         )
-
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
 @ExperimentalMaterialApi
 @Composable
 fun Buttons(
@@ -76,6 +78,8 @@ fun Buttons(
     coroutineScope: CoroutineScope,
     clearValues: () -> Unit,
     ){
+
+    val context = LocalContext.current
 
     Row(){
         IconButton(
@@ -114,6 +118,14 @@ fun Buttons(
                     insertTodo()
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                     clearValues()
+
+/*                    var alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    var calendar = Calendar.getInstance()
+                    calendar.add(Calendar.SECOND, 20)*/
+
+/*                    val notificationIntent = Intent("com.singhajit.notificationDemo.channelId")
+                    var broadcast = PendingIntent.getBroadcast(context, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT )
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, broadcast )*/
                 }},
             enabled = if(taskName == "") false else true,
         ){
@@ -125,3 +137,4 @@ fun Buttons(
         }
     }
 }
+
