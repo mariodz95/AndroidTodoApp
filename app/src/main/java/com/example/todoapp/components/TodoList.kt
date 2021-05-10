@@ -1,7 +1,6 @@
 package com.example.todoapp.components
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,14 +12,11 @@ import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
-import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
@@ -47,7 +43,6 @@ fun TodoList(
                 )
         }
     }
-
 }
 
 @Composable
@@ -66,6 +61,7 @@ fun TodoListRow(
                 .padding(8.dp),
         ) {
             Text("${todo.name}", modifier = Modifier.align(Alignment.Start))
+            Text("${todo.category}", modifier = Modifier.align(Alignment.End))
         }
 
         Column(

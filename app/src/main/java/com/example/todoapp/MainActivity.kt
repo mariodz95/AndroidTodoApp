@@ -83,6 +83,8 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
     val unfinishedTodoList: List<Todo> by todoViewModel.todoList.observeAsState(listOf())
     val finishedTodoList: List<Todo> by todoViewModel.finishedTodoList.observeAsState(listOf())
 
+    Log.v("sada", "GOtova Lista: ${unfinishedTodoList}")
+
     Scaffold(
         topBar = { TopAppBar(
             title = {

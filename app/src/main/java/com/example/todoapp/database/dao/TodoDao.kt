@@ -13,7 +13,7 @@ interface TodoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTodo(todo: Todo)
 
-    @Query("SELECT * FROM todo WHERE isDone = :doneStatus")
+    @Query("SELECT * FROM todo WHERE isDone = :doneStatus UNION SELECT * FROM todo WHERE isDone = :doneStatus order by category")
     fun getAllTodos(doneStatus: Int) : LiveData<MutableList<Todo>>
 
     @Query("UPDATE todo SET isDone =:checkStatus WHERE id = :id")

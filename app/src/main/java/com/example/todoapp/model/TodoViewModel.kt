@@ -13,7 +13,6 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     var todoList: LiveData<MutableList<Todo>> =  MutableLiveData<MutableList<Todo>>()
     var finishedTodoList: LiveData<MutableList<Todo>> =  MutableLiveData<MutableList<Todo>>()
 
-
     var isCollapsed = mutableStateOf(false)
 
     var displayTaskDetails = mutableStateOf(false)

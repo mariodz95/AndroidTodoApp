@@ -2,7 +2,6 @@ package com.example.todoapp.components
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.*
@@ -50,8 +49,6 @@ fun DrawerButtonsContent(
         }, mHour, mMinute, false
     )
 
-    Log.v("sada", "tasknama $taskName ${taskName == ""}")
-
     Buttons(
         taskDetailDisplayChange = {todoViewModel.taskDetailDisplayChange()},
         onExpand = {todoViewModel.onExpand(it)},
@@ -61,6 +58,7 @@ fun DrawerButtonsContent(
         taskName = taskName,
         bottomSheetScaffoldState = bottomSheetScaffoldState,
         coroutineScope = coroutineScope,
+        clearValues = {todoViewModel.clearValues()}
         )
 
 }
@@ -76,6 +74,7 @@ fun Buttons(
     taskName: String,
     bottomSheetScaffoldState: BottomSheetScaffoldState,
     coroutineScope: CoroutineScope,
+    clearValues: () -> Unit,
     ){
 
     Row(){
@@ -114,6 +113,7 @@ fun Buttons(
                 coroutineScope.launch {
                     insertTodo()
                     bottomSheetScaffoldState.bottomSheetState.collapse()
+                    clearValues()
                 }},
             enabled = if(taskName == "") false else true,
         ){
