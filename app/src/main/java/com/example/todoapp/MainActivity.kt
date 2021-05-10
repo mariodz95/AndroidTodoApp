@@ -9,6 +9,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -210,35 +212,34 @@ fun HomeContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column() {
-                TodoListContent(
-                    todoViewModel = todoViewModel,
-                    todoList = unfinishedTodoList
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            collapse()
+            LazyColumn {
+                items(unfinishedTodoList){ todo ->
+                    TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) })
+                }
+                item{
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                collapse()
+                            }
+                            .padding(10.dp)
+                    ){
+                        Text("Done", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text("(${finishedTodoList.size})")
+                        Spacer(modifier = Modifier.width(16.dp))
+                        IconButton(onClick = {collapse() }) {
+                            Icon(if(isCollapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp, "")
                         }
-                        .padding(10.dp)
-                ){
-                    Text("Done", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(16.dp))
-                    IconButton(onClick = {collapse() }) {
-
-                        Icon(if(isCollapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp, "")
                     }
                 }
                 if(isCollapsed) {
-                    TodoListContent(
-                        todoViewModel = todoViewModel,
-                        todoList = finishedTodoList
-                    )
+                    items(finishedTodoList){ todo ->
+                        TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) })
+                    }
                 }
             }
-
             Column(
                 verticalArrangement = Arrangement.Bottom,
             ) {
