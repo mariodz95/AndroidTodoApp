@@ -1,7 +1,9 @@
 package com.example.todoapp.components
 
 import android.app.*
+import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
@@ -19,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 
-
+@RequiresApi(Build.VERSION_CODES.M)
 @ExperimentalMaterialApi
 @Composable
 fun DrawerButtonsContent(
@@ -39,7 +41,7 @@ fun DrawerButtonsContent(
 
     val datePickerDialog = DatePickerDialog(
         context, DatePickerDialog.OnDateSetListener
-        { datePicker: DatePicker, day: Int, month: Int, year: Int ->
+        { datePicker: DatePicker, year: Int, month: Int, day: Int ->
             todoViewModel.addDate(day = day, month = month, year = year)
         }, year, month, day
     )
@@ -61,6 +63,7 @@ fun DrawerButtonsContent(
         bottomSheetScaffoldState = bottomSheetScaffoldState,
         coroutineScope = coroutineScope,
         clearValues = {todoViewModel.clearValues()},
+        setRemainder = {todoViewModel.setRemainder(it)}
         )
 }
 
@@ -77,6 +80,7 @@ fun Buttons(
     bottomSheetScaffoldState: BottomSheetScaffoldState,
     coroutineScope: CoroutineScope,
     clearValues: () -> Unit,
+    setRemainder: (Context) -> Unit,
     ){
 
     val context = LocalContext.current
@@ -117,15 +121,8 @@ fun Buttons(
                 coroutineScope.launch {
                     insertTodo()
                     bottomSheetScaffoldState.bottomSheetState.collapse()
+                    setRemainder(context)
                     clearValues()
-
-/*                    var alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    var calendar = Calendar.getInstance()
-                    calendar.add(Calendar.SECOND, 20)*/
-
-/*                    val notificationIntent = Intent("com.singhajit.notificationDemo.channelId")
-                    var broadcast = PendingIntent.getBroadcast(context, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT )
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, broadcast )*/
                 }},
             enabled = if(taskName == "") false else true,
         ){
@@ -137,4 +134,5 @@ fun Buttons(
         }
     }
 }
+
 

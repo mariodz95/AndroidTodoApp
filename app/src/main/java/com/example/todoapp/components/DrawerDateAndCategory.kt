@@ -44,7 +44,6 @@ fun DrawerDateAndCategoryContent(todoViewModel: TodoViewModel){
         removeCategory = { todoViewModel.removeCategory()},
         removeDate = { todoViewModel.removeDate()},
     )
-
 }
 
 @Composable

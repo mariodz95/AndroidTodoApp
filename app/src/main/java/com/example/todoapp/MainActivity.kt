@@ -1,7 +1,5 @@
 package com.example.todoapp
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -27,14 +25,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.example.todoapp.components.*
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
@@ -56,7 +51,6 @@ class MainActivity : ComponentActivity() {
 
         var factory = TodoViewModelFactory(repository)
         todoViewModel = ViewModelProvider(this, factory)[TodoViewModel::class.java]
-
 
         setContent {
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
@@ -89,8 +83,6 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
 
     val unfinishedTodoList: List<Todo> by todoViewModel.todoList.observeAsState(listOf())
     val finishedTodoList: List<Todo> by todoViewModel.finishedTodoList.observeAsState(listOf())
-
-    Log.v("sada", "GOtova Lista: ${unfinishedTodoList}")
 
     Scaffold(
         topBar = { TopAppBar(

@@ -1,5 +1,10 @@
 package com.example.todoapp.model
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import com.example.todoapp.R
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.repository.TodoRepository
+import com.example.todoapp.util.AlarmReceiver
 import java.util.*
 
 class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
@@ -43,6 +49,26 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     init{
         getAllTodos(0)
         getAllTodos(1)
+    }
+
+    fun setRemainder(context: Context){
+        if(selectedYear.value != 0){
+            val notificationId = 46
+
+            val intent = Intent(context, AlarmReceiver::class.java)
+            intent.putExtra("notificationId", notificationId)
+            intent.putExtra("notificationText", taskName.value)
+
+            val alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            var alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, selectedHour.value);
+            calendar.set(Calendar.MINUTE, selectedMinute.value);
+            calendar.set(Calendar.SECOND, 0);
+
+            alarm.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
+        }
     }
 
     fun collapse(){
@@ -94,6 +120,8 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     fun removeDate(){
         selectedDay.value = 0
+        selectedMonth.value = 0
+        selectedYear.value = 0
     }
 
     fun insertTodo(){
