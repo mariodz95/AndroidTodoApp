@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">TodoApp</string>
+    <string name="app_name">MovieK</string>
+    <string name="todo_details">Todo Detail</string>
 </resources>

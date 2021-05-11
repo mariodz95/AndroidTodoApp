@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.compose.material.R
 import androidx.core.app.NotificationCompat
 import com.example.todoapp.MainActivity
@@ -15,9 +16,10 @@ class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val notificationId = intent.getIntExtra("notificationId", 0)
         val message = intent.getStringExtra("notificationText")
+        val requestCode = intent.getIntExtra("requestCode", 0)
 
         val mainIntent  = Intent(context, MainActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(context,0, mainIntent, 0)
+        val contentIntent = PendingIntent.getActivity(context,requestCode, mainIntent, 0)
 
         val myNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

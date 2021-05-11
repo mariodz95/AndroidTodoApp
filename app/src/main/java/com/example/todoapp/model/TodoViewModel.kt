@@ -6,9 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -49,24 +46,38 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     var selectedMonth = mutableStateOf(0)
     var selectedYear = mutableStateOf(0)
 
-    @ExperimentalComposeUiApi
-    val keyboardController = mutableStateOf(  LocalSoftwareKeyboardController )
+    val displayKeyboard = mutableStateOf(false)
 
+    val height = mutableStateOf(0)
 
     init{
         getAllTodos(0)
         getAllTodos(1)
     }
 
+    fun addDrawerHeight(){
+        if(displayTaskDetails.value){
+            height.value = 70
+        }else{
+            height.value = 0
+        }
+    }
+
+    fun setDisplayKeyboard(){
+        displayKeyboard.value = if(displayKeyboard.value) false else true
+    }
+
     fun setRemainder(context: Context){
         if(selectedYear.value != 0){
-            val notificationId = 46
+            val notificationId = (Date().time / 1000L % Int.MAX_VALUE).toInt()
+            val requestCode = (Date().time / 1000L % Int.MAX_VALUE).toInt()
 
             val intent = Intent(context, AlarmReceiver::class.java)
             intent.putExtra("notificationId", notificationId)
             intent.putExtra("notificationText", taskName.value)
+            intent.putExtra("requestCode", requestCode)
 
-            val alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val alarmIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT)
             var alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
             val calendar = Calendar.getInstance()
@@ -100,6 +111,7 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         removeCategory()
         removeDate()
         displayTaskDetails.value = false
+        height.value = 0
     }
 
     fun onExpand(expand: Boolean){

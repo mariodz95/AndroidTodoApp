@@ -68,7 +68,8 @@ fun DrawerButtonsContent(
         coroutineScope = coroutineScope,
         clearValues = {todoViewModel.clearValues()},
         setRemainder = {todoViewModel.setRemainder(it)},
-        keyboardController = keyboardController
+        keyboardController = keyboardController,
+        addDrawerHeight = {todoViewModel.addDrawerHeight()}
         )
 }
 
@@ -87,14 +88,17 @@ fun Buttons(
     coroutineScope: CoroutineScope,
     clearValues: () -> Unit,
     setRemainder: (Context) -> Unit,
-    keyboardController: SoftwareKeyboardController?
+    keyboardController: SoftwareKeyboardController?,
+    addDrawerHeight: () -> Unit,
     ){
-
     val context = LocalContext.current
 
     Row(){
         IconButton(
-            onClick = taskDetailDisplayChange,
+            onClick = {
+                taskDetailDisplayChange()
+                addDrawerHeight()
+            },
         ){
             Icon(
                 Icons.Filled.Add,
@@ -103,7 +107,9 @@ fun Buttons(
             )
         }
         IconButton(
-            onClick = {onExpand(true)},
+            onClick = {
+                onExpand(true)
+                      },
         ){
             Icon(
                 Icons.Filled.Star,

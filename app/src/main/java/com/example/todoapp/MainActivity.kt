@@ -2,10 +2,11 @@ package com.example.todoapp
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -53,6 +54,14 @@ class MainActivity : ComponentActivity() {
         todoViewModel = ViewModelProvider(this, factory)[TodoViewModel::class.java]
 
         setContent {
+/*
+            val navController = rememberNavController()
+*/
+/*
+            NavHost(navController, startDestination = Screen.TodoDetail.route) {
+                composable(Screen.TodoDetail.route) { TodoDetail(navController) }
+            }*/
+
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
                 bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
             )
@@ -65,7 +74,9 @@ class MainActivity : ComponentActivity() {
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
-fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel: TodoViewModel
+fun HomeScreen(
+    bottomSheetScaffoldState: BottomSheetScaffoldState,
+    todoViewModel: TodoViewModel,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val keyboardController = remember {LocalSoftwareKeyboardController}
@@ -84,6 +95,14 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
     val unfinishedTodoList: List<Todo> by todoViewModel.todoList.observeAsState(listOf())
     val finishedTodoList: List<Todo> by todoViewModel.finishedTodoList.observeAsState(listOf())
 
+    val display = todoViewModel.displayKeyboard.value
+
+    if(display){
+        keyboardController.current!!.show()
+    }
+
+    val height = todoViewModel.height.value
+
     Scaffold(
         topBar = { TopAppBar(
             title = {
@@ -95,17 +114,18 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
             backgroundColor = Color(0xFF1976D2)
         )  },
         bottomBar = {
-            BottomAppBar(cutoutShape = CircleShape) {
-        }
+            BottomAppBar(backgroundColor = Color(0xFF1976D2), cutoutShape = CircleShape) {}
         },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
         floatingActionButton = {   FloatingActionButton(
             modifier = Modifier.padding(8.dp),
             onClick =  {
+                todoViewModel.setDisplayKeyboard()
                 coroutineScope.launch {
                     focusRequester.requestFocus()
                     bottomSheetScaffoldState.bottomSheetState.expand()
+                    todoViewModel.setDisplayKeyboard()
                 }
             },
             backgroundColor = Color(0xFF1976D2),
@@ -129,7 +149,8 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
                 isCollapsed = isCollapsed,
                 collapse = {todoViewModel.collapse()},
                 unfinishedTodoList = unfinishedTodoList,
-                finishedTodoList = finishedTodoList
+                finishedTodoList = finishedTodoList,
+                height = height,
             )
 
             Dropdown(
@@ -162,7 +183,8 @@ fun HomeContent(
     isCollapsed: Boolean,
     collapse: () -> Unit,
     unfinishedTodoList: List<Todo>,
-    finishedTodoList: List<Todo>
+    finishedTodoList: List<Todo>,
+    height: Int,
 ){
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -170,7 +192,7 @@ fun HomeContent(
             Box (
                 Modifier
                     .fillMaxWidth()
-                    .height(450.dp)
+                    .height(400.dp + height.dp)
                     .padding(20.dp),
                 contentAlignment = Alignment.TopCenter,
             ) {
@@ -222,7 +244,6 @@ fun HomeContent(
                             keyboardController?.hide()
                             bottomSheetScaffoldState.bottomSheetState.collapse()
                             clearValues()
-
                         },
                     )
                 },
@@ -260,29 +281,13 @@ fun HomeContent(
                         TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) })
                     }
                 }
-                item{
-          /*          Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                    ) {
-                        FloatingActionButton(
-                            modifier = Modifier.padding(10.dp),
-                            onClick =  {
-                                coroutineScope.launch {
-                                    focusRequester.requestFocus()
-                                    bottomSheetScaffoldState.bottomSheetState.expand()
-                                }
-                            },
-                            backgroundColor = Color(0xFF1976D2),
-                            shape = CircleShape,
-                        ){
-                            Icon(Icons.Filled.Add, "")
-                        }
-                    }*/
-                }
             }
         }
     }
 }
 
-
+/*
+sealed class Screen(val route: String, @StringRes val resourceId: Int) {
+    object TodoDetail : Screen("todoDetails", R.string.todo_details)
+}
+*/

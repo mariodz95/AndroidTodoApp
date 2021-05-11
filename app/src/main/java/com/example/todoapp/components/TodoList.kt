@@ -1,5 +1,7 @@
 package com.example.todoapp.components
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
@@ -19,14 +21,18 @@ fun TodoListRow(
     Card(
         Modifier
             .fillMaxWidth()
-            .padding(8.dp), elevation = 8.dp){
+            .padding(8.dp)
+            .clickable{
+                      Log.v("sada", "klikam")
+            },
+        elevation = 8.dp)
+    {
         Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(8.dp),
                 horizontalAlignment = Alignment.Start
-
             ) {
                 Text("${todo.name}", modifier = Modifier.align(Alignment.Start), fontSize = 16.sp)
                 Text("${if(todo.category == null) "No Category!" else todo.category}", modifier = Modifier.align(Alignment.Start), fontSize = 12.sp)
@@ -46,6 +52,5 @@ fun TodoListRow(
                 )
             }
         }
-
     }
 }
