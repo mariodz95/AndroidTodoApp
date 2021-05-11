@@ -14,20 +14,24 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import com.example.todoapp.model.TodoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 
+@ExperimentalComposeUiApi
 @RequiresApi(Build.VERSION_CODES.M)
 @ExperimentalMaterialApi
 @Composable
 fun DrawerButtonsContent(
     todoViewModel: TodoViewModel,
     bottomSheetScaffoldState: BottomSheetScaffoldState,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    keyboardController: SoftwareKeyboardController?
     ){
     val c = Calendar.getInstance()
     val year = c.get(Calendar.YEAR)
@@ -63,10 +67,12 @@ fun DrawerButtonsContent(
         bottomSheetScaffoldState = bottomSheetScaffoldState,
         coroutineScope = coroutineScope,
         clearValues = {todoViewModel.clearValues()},
-        setRemainder = {todoViewModel.setRemainder(it)}
+        setRemainder = {todoViewModel.setRemainder(it)},
+        keyboardController = keyboardController
         )
 }
 
+@ExperimentalComposeUiApi
 @RequiresApi(Build.VERSION_CODES.M)
 @ExperimentalMaterialApi
 @Composable
@@ -81,6 +87,7 @@ fun Buttons(
     coroutineScope: CoroutineScope,
     clearValues: () -> Unit,
     setRemainder: (Context) -> Unit,
+    keyboardController: SoftwareKeyboardController?
     ){
 
     val context = LocalContext.current
@@ -120,6 +127,7 @@ fun Buttons(
             onClick = {
                 coroutineScope.launch {
                     insertTodo()
+                    keyboardController?.hide()
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                     setRemainder(context)
                     clearValues()

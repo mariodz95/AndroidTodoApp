@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -45,6 +48,10 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     var selectedDay = mutableStateOf(0)
     var selectedMonth = mutableStateOf(0)
     var selectedYear = mutableStateOf(0)
+
+    @ExperimentalComposeUiApi
+    val keyboardController = mutableStateOf(  LocalSoftwareKeyboardController )
+
 
     init{
         getAllTodos(0)

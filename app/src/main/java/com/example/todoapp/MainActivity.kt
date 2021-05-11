@@ -205,7 +205,7 @@ fun HomeContent(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     DrawerDateAndCategoryContent(todoViewModel = todoViewModel)
-                    DrawerButtonsContent(todoViewModel = todoViewModel, bottomSheetScaffoldState, coroutineScope,
+                    DrawerButtonsContent(todoViewModel = todoViewModel, bottomSheetScaffoldState, coroutineScope, keyboardController
                     )
                 }
             }
@@ -248,7 +248,7 @@ fun HomeContent(
                             .padding(10.dp)
                     ){
                         Text("Done", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("(${finishedTodoList.size})")
+                        Text(" (${finishedTodoList.size})")
                         Spacer(modifier = Modifier.width(16.dp))
                         IconButton(onClick = {collapse() }) {
                             Icon(if(isCollapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp, "")
