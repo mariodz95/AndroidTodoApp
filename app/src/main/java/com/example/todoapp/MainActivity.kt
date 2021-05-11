@@ -94,6 +94,25 @@ fun HomeScreen(bottomSheetScaffoldState: BottomSheetScaffoldState, todoViewModel
             },
             backgroundColor = Color(0xFF1976D2)
         )  },
+        bottomBar = {
+            BottomAppBar(cutoutShape = CircleShape) {
+        }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+        isFloatingActionButtonDocked = true,
+        floatingActionButton = {   FloatingActionButton(
+            modifier = Modifier.padding(8.dp),
+            onClick =  {
+                coroutineScope.launch {
+                    focusRequester.requestFocus()
+                    bottomSheetScaffoldState.bottomSheetState.expand()
+                }
+            },
+            backgroundColor = Color(0xFF1976D2),
+            shape = CircleShape,
+        ){
+            Icon(Icons.Filled.Add, "")
+        }},
         content = {
             HomeContent(
                 bottomSheetScaffoldState = bottomSheetScaffoldState,
@@ -196,6 +215,7 @@ fun HomeContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .padding(bottom = 60.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = { offset ->
@@ -210,6 +230,7 @@ fun HomeContent(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             LazyColumn(
+                modifier = Modifier.padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
@@ -240,8 +261,7 @@ fun HomeContent(
                     }
                 }
                 item{
-
-                    Column(
+          /*          Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom,
                     ) {
@@ -258,7 +278,7 @@ fun HomeContent(
                         ){
                             Icon(Icons.Filled.Add, "")
                         }
-                    }
+                    }*/
                 }
             }
         }
