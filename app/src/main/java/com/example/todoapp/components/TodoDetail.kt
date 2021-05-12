@@ -14,10 +14,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.todoapp.database.entity.Todo
+import com.example.todoapp.model.TodoViewModel
 import com.google.gson.Gson
 
 @Composable
-fun TodoDetail(navController: NavHostController, todoString: String?) {
+fun TodoDetailContent(navController: NavHostController, todoString: String?, todoViewModel: TodoViewModel) {
 
     var todo: Todo? = null
     if(todoString != null){
@@ -25,15 +26,27 @@ fun TodoDetail(navController: NavHostController, todoString: String?) {
         todo = gson.fromJson(todoString, Todo::class.java)
     }
 
+    TodoDetail(
+        navController = navController,
+        todo = todo,
+        deleteTodo = {todoViewModel.deleteTodo(it)}
+    )
 
+}
 
+@Composable
+fun TodoDetail(
+    navController: NavHostController,
+    todo: Todo?,
+    deleteTodo: (Todo) -> Unit
+){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(text = "TopAppBar", color = Color.White)
-                        },
+                },
                 backgroundColor = materialBlue700,
                 navigationIcon = {
                     // navigation icon is use
@@ -45,13 +58,20 @@ fun TodoDetail(navController: NavHostController, todoString: String?) {
                     }
                 },
                 actions = {
-                    Icon(Icons.Filled.Delete, "", tint = Color.White)
+                    IconButton(onClick = {
+                            todo?.let { deleteTodo(it)
+                            navController.popBackStack()
+                        } }) {
+                        Icon(
+                            Icons.Filled.Delete, "",
+                            tint = Color.White,
+                        )
+                    }
                     Spacer(modifier = Modifier.width(16.dp))
                 }
 
             )
-                 },
+        },
         content = { Text("BodyContent") },
-
-    )
+        )
 }

@@ -67,12 +67,8 @@ class MainActivity : ComponentActivity() {
 
             NavHost(navController, startDestination = "homeScreen") {
                 composable(Screen.HomeScreen.route) { HomeScreen(bottomSheetScaffoldState, todoViewModel, navController) }
-/*
-                composable(Screen.TodoDetail.route) { TodoDetail(navController) }
-*/
-
-                composable(Screen.TodoDetail.route) { backStackEntry ->
-                    TodoDetail(navController, backStackEntry.arguments?.getString("todo"))
+                composable(Screen.TodoDetailContent.route) { backStackEntry ->
+                    TodoDetailContent(navController, backStackEntry.arguments?.getString("todo"), todoViewModel)
                 }
             }
                 }
@@ -300,9 +296,5 @@ fun HomeContent(
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object HomeScreen : Screen("homeScreen", R.string.todo_details)
-/*
-    object TodoDetail : Screen("todoDetails", R.string.todo_details)
-*/
-
-    object TodoDetail: Screen("todoDetails/{todo}", R.string.todo_details)
+    object TodoDetailContent: Screen("todoDetails/{todo}", R.string.todo_details)
 }

@@ -55,6 +55,10 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         getAllTodos(1)
     }
 
+    fun deleteTodo(todo: Todo){
+        repository.deleteTodo(todo)
+    }
+
     fun addDrawerHeight(){
         if(displayTaskDetails.value){
             height.value = 70

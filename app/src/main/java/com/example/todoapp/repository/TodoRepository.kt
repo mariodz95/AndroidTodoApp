@@ -19,4 +19,8 @@ class TodoRepository(private val todoDao: TodoDao ) {
     fun updateTodoCheckStatus(checkStatus: Boolean, id: UUID){
         todoDao.updateTodoCheckStatus(checkStatus, id)
     }
+
+    fun deleteTodo(todo: Todo){
+        todoDao.deleteTodo(todo)
+    }
 }

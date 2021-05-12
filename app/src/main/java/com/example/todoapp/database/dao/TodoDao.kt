@@ -1,10 +1,7 @@
 package com.example.todoapp.database.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.example.todoapp.database.entity.Todo
 import java.util.*
 
@@ -18,4 +15,7 @@ interface TodoDao {
 
     @Query("UPDATE todo SET isDone =:checkStatus WHERE id = :id")
     fun updateTodoCheckStatus(checkStatus: Boolean, id: UUID)
+
+    @Delete
+    fun deleteTodo(todo: Todo)
 }
