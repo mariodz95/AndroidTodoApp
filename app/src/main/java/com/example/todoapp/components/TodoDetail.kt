@@ -140,9 +140,10 @@ fun TodoDetail(
                 Row(
                 ){
                     TextField(
+                        enabled= if(todo?.isDone!!) false else true,
                         value = todoDetailDisplayName,
                         onValueChange = {todoDetailDisplayNameChange(it)},
-                        textStyle = TextStyle(color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 24.sp),
+                        textStyle = TextStyle(color = if(todo?.isDone!!) Color.Gray else Color.Black, fontWeight = FontWeight.Bold, fontSize = 24.sp),
                         label = { Text("") },
                         colors = TextFieldDefaults.textFieldColors(
                             textColor = Color.Black,
@@ -158,11 +159,12 @@ fun TodoDetail(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ){
-                    Icon( painter = painterResource(R.drawable.ic_baseline_description_24), "")
+                    Icon( painter = painterResource(R.drawable.ic_baseline_description_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     TextField(
+                        enabled= if(todo?.isDone!!) false else true,
                         value = todoDetailDisplayDetail,
                         onValueChange = {todoDetailDisplayDetailChange(it)},
-                        textStyle = TextStyle(color = Color.Black, fontSize = 20.sp),
+                        textStyle = TextStyle(color = if(todo?.isDone!!) Color.Gray else Color.Black, fontSize = 20.sp),
                         label = { Text("Details!") },
                         colors = TextFieldDefaults.textFieldColors(
                             textColor = Color.Black,
@@ -178,27 +180,24 @@ fun TodoDetail(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ){
-                    Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "")
+                    Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
                     if(todo?.category == null){
-                        Text("No category!")
+                        Text(text = "No category!", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }else{
-                        Text("${todo.category}")
+                        Text(text = "${todo.category}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ){
-                    Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "")
+                    Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
-
-
                     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                     val date = sdf.format(todo?.dateAdded?.time)
-
-                    Text("Created at: ${date}")
+                    Text(text = "Created at: ${date}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                 }
             } },
         )
