@@ -18,6 +18,7 @@ import java.util.*
 class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     var todoList: LiveData<MutableList<Todo>> =  MutableLiveData<MutableList<Todo>>()
     var finishedTodoList: LiveData<MutableList<Todo>> =  MutableLiveData<MutableList<Todo>>()
+    var todo: LiveData<Todo> = MutableLiveData<Todo>()
 
     var isCollapsed = mutableStateOf(false)
 
@@ -41,14 +42,15 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     var selectedHour =  mutableStateOf(0)
     var selectedMinute =  mutableStateOf(0)
-
     var selectedDay = mutableStateOf(0)
     var selectedMonth = mutableStateOf(0)
     var selectedYear = mutableStateOf(0)
-
     val displayKeyboard = mutableStateOf(false)
-
     val height = mutableStateOf(0)
+
+    val todoDetailDisplayName = mutableStateOf("")
+    val todoDetailsDisplayDetails = mutableStateOf("")
+    val addValue = mutableStateOf(true)
 
     init{
         getAllTodos(0)
@@ -169,5 +171,45 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     fun checkTodo(todo: Todo){
         repository.updateTodoCheckStatus(if(todo.isDone) false else true, todo.id)
+    }
+
+    fun todoDetailDisplayNameChange(newName: String){
+        todoDetailDisplayName.value = newName
+    }
+
+    fun todoDetailDisplayDetailChange(newDetail: String){
+        todoDetailsDisplayDetails.value = newDetail
+    }
+
+    fun updateTodo(newName: String, newDetail: String, todoId: UUID){
+        updateTodoName(newName, todoId)
+        updateTodoDetail(newDetail, todoId)
+        clearDisplayValues()
+        addValue.value = true
+    }
+
+    fun updateTodoName(newDetail: String, todoId: UUID){
+        repository.updateTodoDetail(newDetail, todoId)
+    }
+
+    fun updateTodoDetail(newDetail: String, todoId: UUID){
+        repository.updateTodoDetail(newDetail, todoId)
+    }
+
+    fun getTodoById(todoId: UUID){
+        todo = repository.getTodoById(todoId)
+    }
+
+    fun disableAddValue(){
+        addValue.value = false
+    }
+
+    fun enableAddValue(){
+        addValue.value = true
+    }
+
+    fun clearDisplayValues(){
+        todoDetailDisplayName.value = ""
+        todoDetailsDisplayDetails.value = ""
     }
 }

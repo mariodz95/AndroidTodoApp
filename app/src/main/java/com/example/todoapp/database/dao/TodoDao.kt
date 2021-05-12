@@ -18,4 +18,13 @@ interface TodoDao {
 
     @Delete
     fun deleteTodo(todo: Todo)
+
+    @Query("UPDATE todo SET name = :newName WHERE id = :todoId")
+    fun updateTodo(newName: String, todoId: UUID)
+
+    @Query("SELECT *FROM todo WHERE id = :todoId")
+    fun getTodoById(todoId: UUID) : LiveData<Todo>
+
+    @Query("UPDATE todo SET details = :newDetail WHERE id = :todoId")
+    fun updateTodoDetail(newDetail: String, todoId: UUID)
 }

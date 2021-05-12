@@ -23,4 +23,16 @@ class TodoRepository(private val todoDao: TodoDao ) {
     fun deleteTodo(todo: Todo){
         todoDao.deleteTodo(todo)
     }
+
+    fun updateTodo(newName: String, todoId: UUID){
+        todoDao.updateTodo(newName, todoId)
+    }
+
+    fun updateTodoDetail(newDetail: String, todoId: UUID){
+        todoDao.updateTodoDetail(newDetail, todoId)
+    }
+
+    fun getTodoById(todoId: UUID): LiveData<Todo>{
+        return todoDao.getTodoById(todoId)
+    }
 }
