@@ -1,6 +1,8 @@
 package com.example.todoapp.components
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -9,16 +11,24 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.todoapp.R
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
 import com.google.gson.Gson
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun TodoDetailContent(navController: NavHostController, todoString: String?, todoViewModel: TodoViewModel) {
@@ -58,6 +68,7 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodoDetail(
     navController: NavHostController,
@@ -143,12 +154,16 @@ fun TodoDetail(
                         )
                     )
                 }
-                Row(){
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Icon( painter = painterResource(R.drawable.ic_baseline_description_24), "")
                     TextField(
                         value = todoDetailDisplayDetail,
                         onValueChange = {todoDetailDisplayDetailChange(it)},
                         textStyle = TextStyle(color = Color.Black, fontSize = 20.sp),
-                        label = { Text("Add details!") },
+                        label = { Text("Details!") },
                         colors = TextFieldDefaults.textFieldColors(
                             textColor = Color.Black,
                             disabledTextColor = Color.Transparent,
@@ -160,43 +175,31 @@ fun TodoDetail(
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(8.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ){
+                    Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "")
+                    Spacer(modifier = Modifier.width(16.dp))
                     if(todo?.category == null){
                         Text("No category!")
                     }else{
                         Text("${todo.category}")
-
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
                 Row(
-                    modifier = Modifier.padding(8.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ){
-                    Text("${todo?.dateAdded}")
+                    Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "")
+                    Spacer(modifier = Modifier.width(16.dp))
+
+
+                    val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                    val date = sdf.format(todo?.dateAdded?.time)
+
+                    Text("Created at: ${date}")
                 }
             } },
         )
 }
-
-@Composable
-fun TodoDetailTextField(
-    todo: Todo,
-    updateValue: (String) -> Unit,
-    displayText: String
-){
-    TextField(
-        value = displayText,
-        onValueChange = {updateValue(it)},
-        textStyle = TextStyle(color = Color.Black, fontSize = 20.sp),
-        label = { Text("") },
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.Black,
-            disabledTextColor = Color.Transparent,
-            backgroundColor = Color.White,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
-}
-
