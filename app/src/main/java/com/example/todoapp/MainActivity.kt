@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
 import com.example.todoapp.components.*
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
@@ -54,18 +56,25 @@ class MainActivity : ComponentActivity() {
         todoViewModel = ViewModelProvider(this, factory)[TodoViewModel::class.java]
 
         setContent {
-/*
             val navController = rememberNavController()
-*/
-/*
-            NavHost(navController, startDestination = Screen.TodoDetail.route) {
-                composable(Screen.TodoDetail.route) { TodoDetail(navController) }
-            }*/
 
             val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
                 bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
             )
-            HomeScreen(bottomSheetScaffoldState, todoViewModel)
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+
+
+            NavHost(navController, startDestination = "homeScreen") {
+                composable(Screen.HomeScreen.route) { HomeScreen(bottomSheetScaffoldState, todoViewModel, navController) }
+/*
+                composable(Screen.TodoDetail.route) { TodoDetail(navController) }
+*/
+
+                composable(Screen.TodoDetail.route) { backStackEntry ->
+                    TodoDetail(navController, backStackEntry.arguments?.getString("todo"))
+                }
+            }
                 }
             }
 }
@@ -77,6 +86,7 @@ class MainActivity : ComponentActivity() {
 fun HomeScreen(
     bottomSheetScaffoldState: BottomSheetScaffoldState,
     todoViewModel: TodoViewModel,
+    navController: NavHostController
 ) {
     val coroutineScope = rememberCoroutineScope()
     val keyboardController = remember {LocalSoftwareKeyboardController}
@@ -151,6 +161,7 @@ fun HomeScreen(
                 unfinishedTodoList = unfinishedTodoList,
                 finishedTodoList = finishedTodoList,
                 height = height,
+                navController = navController
             )
 
             Dropdown(
@@ -185,6 +196,7 @@ fun HomeContent(
     unfinishedTodoList: List<Todo>,
     finishedTodoList: List<Todo>,
     height: Int,
+    navController: NavHostController
 ){
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -256,7 +268,7 @@ fun HomeContent(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 items(unfinishedTodoList){ todo ->
-                    TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) })
+                    TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) }, navController = navController)
                 }
                 item{
                     Row(
@@ -278,7 +290,7 @@ fun HomeContent(
                 }
                 if(isCollapsed) {
                     items(finishedTodoList){ todo ->
-                        TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) })
+                        TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) }, navController = navController)
                     }
                 }
             }
@@ -286,8 +298,11 @@ fun HomeContent(
     }
 }
 
-/*
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
+    object HomeScreen : Screen("homeScreen", R.string.todo_details)
+/*
     object TodoDetail : Screen("todoDetails", R.string.todo_details)
-}
 */
+
+    object TodoDetail: Screen("todoDetails/{todo}", R.string.todo_details)
+}

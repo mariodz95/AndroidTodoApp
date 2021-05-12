@@ -11,19 +11,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.navigate
 import com.example.todoapp.database.entity.Todo
+import com.google.gson.Gson
 
 @Composable
 fun TodoListRow(
     todo: Todo,
     checked: (Todo) -> Unit,
+    navController: NavHostController
+
 ){
+    val gson = Gson()
+    val todoString = gson.toJson(todo)
     Card(
         Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable{
-                      Log.v("sada", "klikam")
+                navController.navigate("todoDetails/$todoString")
             },
         elevation = 8.dp)
     {
