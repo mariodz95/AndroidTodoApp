@@ -98,9 +98,9 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
             calendar.set(Calendar.MINUTE, selectedMinute.value)
             calendar.set(Calendar.SECOND, 0)
 
-            calendar.set(Calendar.MONTH, selectedMonth.value);
+            calendar.set(Calendar.MONTH, selectedMonth.value)
             calendar.set(Calendar.DAY_OF_MONTH, selectedDay.value)
-            calendar.set(Calendar.YEAR, selectedYear.value);
+            calendar.set(Calendar.YEAR, selectedYear.value)
 
             alarm.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
         }
@@ -243,5 +243,18 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     fun addTodoCategory(category: String, todoId: UUID){
         repository.addTodoCategory(category, todoId)
+    }
+
+    fun addTodoRemainder(todoId: UUID, context: Context){
+        setRemainder(context)
+        calendar.set(Calendar.HOUR_OF_DAY, selectedHour.value)
+        calendar.set(Calendar.MINUTE, selectedMinute.value)
+        calendar.set(Calendar.SECOND, 0)
+
+        calendar.set(Calendar.MONTH, selectedMonth.value)
+        calendar.set(Calendar.DAY_OF_MONTH, selectedDay.value)
+        calendar.set(Calendar.YEAR, selectedYear.value)
+
+        repository.addTodoRemainder(todoId, calendar.time)
     }
 }

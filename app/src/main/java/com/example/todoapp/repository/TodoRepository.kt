@@ -43,4 +43,8 @@ class TodoRepository(private val todoDao: TodoDao ) {
     fun addTodoCategory(category: String, todoId: UUID){
         todoDao.addTodoCategory(category, todoId)
     }
+
+    fun addTodoRemainder(todoId: UUID, date: Date){
+        todoDao.addTodoRemainder(todoId, date)
+    }
 }

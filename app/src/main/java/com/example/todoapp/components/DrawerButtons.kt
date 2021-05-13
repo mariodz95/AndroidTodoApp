@@ -17,6 +17,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import com.example.todoapp.R
 import com.example.todoapp.model.TodoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,24 +43,25 @@ fun DrawerButtonsContent(
 
     val taskName = todoViewModel.taskName.value
 
-    val datePickerDialog = DatePickerDialog(
-        context, DatePickerDialog.OnDateSetListener
-        { datePicker: DatePicker, year: Int, month: Int, day: Int ->
-            todoViewModel.addDate(day = day, month = month, year = year)
-        }, year, month, day
-    )
-
     val timePickerDialog = TimePickerDialog(
-        context,
+        context, R.style.DialogTheme,
         TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
             todoViewModel.addTime(hourOfDay = hourOfDay, minuteOfDay = minute)
-        }, mHour, mMinute, false
+        }, mHour, mMinute, true
+    )
+
+    val datePickerDialog = DatePickerDialog(
+        context, R.style.DialogTheme,
+        DatePickerDialog.OnDateSetListener
+        { datePicker: DatePicker, year: Int, month: Int, day: Int ->
+            todoViewModel.addDate(day = day, month = month, year = year)
+            timePickerDialog.show()
+        }, year, month, day
     )
 
     Buttons(
         taskDetailDisplayChange = {todoViewModel.taskDetailDisplayChange()},
         onExpand = {todoViewModel.onExpand(it)},
-        timePickerDialog = timePickerDialog,
         datePickerDialog = datePickerDialog,
         insertTodo = {todoViewModel.insertTodo()},
         taskName = taskName,
@@ -79,7 +81,6 @@ fun DrawerButtonsContent(
 fun Buttons(
     taskDetailDisplayChange: () -> Unit,
     onExpand: (Boolean) -> Unit,
-    timePickerDialog: TimePickerDialog,
     datePickerDialog: DatePickerDialog,
     insertTodo: () -> Unit,
     taskName: String,
@@ -118,7 +119,6 @@ fun Buttons(
         }
         IconButton(
             onClick = {
-                timePickerDialog.show()
                 datePickerDialog.show()
             },
         ){

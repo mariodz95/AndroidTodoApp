@@ -1,7 +1,10 @@
 package com.example.todoapp.components
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Build
 import android.util.Log
+import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,10 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -31,8 +32,7 @@ import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -55,6 +55,33 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
     val items = todoViewModel.items
     val itemsIcons = todoViewModel.itemsIcons
 
+    val c = Calendar.getInstance()
+    val year = c.get(Calendar.YEAR)
+    val month = c.get(Calendar.MONTH)
+    val day = c.get(Calendar.DAY_OF_MONTH)
+    val mHour = c[Calendar.HOUR_OF_DAY]
+    val mMinute = c[Calendar.MINUTE]
+    val context = LocalContext.current
+
+    val timePickerDialog = TimePickerDialog(context, R.style.DialogTheme,
+        TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+            todoViewModel.addTime(hourOfDay = hourOfDay, minuteOfDay = minute)
+        }, mHour, mMinute, true
+    )
+
+    val datePickerDialog = DatePickerDialog(
+        context, R.style.DialogTheme,
+        DatePickerDialog.OnDateSetListener
+        { datePicker: DatePicker, year: Int, month: Int, day: Int ->
+            todoViewModel.addDate(day = day, month = month, year = year)
+            timePickerDialog.show()
+        }, year, month, day
+    )
+
+    timePickerDialog.setOnDismissListener {
+        todoViewModel.addTodoRemainder(todo.id, context)
+    }
+
     if(todoItem != null) {
         if(addValue){
             todoViewModel.todoDetailDisplayNameChange(todoItem?.name!!)
@@ -74,9 +101,9 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             enableAddValue = {todoViewModel.enableAddValue()},
             clearDisplayValues ={todoViewModel.clearDisplayValues()},
             updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)},
-            cancelNotification = { todoViewModel.cancelNotification(todo.requestCode!!, context) },
             removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
-            onExpand = {todoViewModel.onExpand(it)}
+            onExpand = {todoViewModel.onExpand(it)},
+            datePickerDialog = datePickerDialog,
         )
         Dropdown(
             expanded = expanded,
@@ -102,9 +129,9 @@ fun TodoDetail(
     enableAddValue: () -> Unit,
     clearDisplayValues: () -> Unit,
     updateTodo: () -> Unit,
-    cancelNotification: () -> Unit,
     removeRemainder: () -> Unit,
     onExpand: (Boolean) -> Unit,
+    datePickerDialog: DatePickerDialog,
     ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
@@ -219,7 +246,10 @@ fun TodoDetail(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().clickable{
+                        datePickerDialog.show()
+                        Log.v("sada", "nakon svega")
+                    },
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))

@@ -33,4 +33,7 @@ interface TodoDao {
 
     @Query("UPDATE todo SET category = :category WHERE id = :todoId")
     fun addTodoCategory(category: String, todoId: UUID)
+
+    @Query("UPDATE todo SET remainder = :date WHERE id = :todoId")
+    fun addTodoRemainder(todoId: UUID, date: Date)
 }
