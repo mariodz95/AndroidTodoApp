@@ -35,4 +35,8 @@ class TodoRepository(private val todoDao: TodoDao ) {
     fun getTodoById(todoId: UUID): LiveData<Todo>{
         return todoDao.getTodoById(todoId)
     }
+
+    fun removeRemainder(todoId: UUID){
+        todoDao.removeRemainder(todoId)
+    }
 }

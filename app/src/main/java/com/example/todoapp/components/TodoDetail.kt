@@ -3,8 +3,10 @@ package com.example.todoapp.components
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +33,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodoDetailContent(navController: NavHostController, todoString: String?, todoViewModel: TodoViewModel) {
 
@@ -52,10 +56,11 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             todoViewModel.todoDetailDisplayDetailChange(todoItem?.details!!)
             todoViewModel.disableAddValue()
         }
+        val context = LocalContext.current
         TodoDetail(
             navController = navController,
             todo = todoItem,
-            deleteTodo = {todoViewModel.deleteTodo(it)},
+            deleteTodo = {todoViewModel.deleteTodo(it, context)},
             checkTodo = {todoViewModel.checkTodo(it)},
             todoDetailDisplayNameChange = { todoViewModel.todoDetailDisplayNameChange(it)},
             todoDetailDisplayDetailChange ={ todoViewModel.todoDetailDisplayDetailChange(it)},
@@ -63,7 +68,9 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             todoDetailDisplayDetail = todoDetailDisplayDetail,
             enableAddValue = {todoViewModel.enableAddValue()},
             clearDisplayValues ={todoViewModel.clearDisplayValues()},
-            updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)}
+            updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)},
+            cancelNotification = { todoViewModel.cancelNotification(todo.requestCode!!, context) },
+            removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) }
         )
     }
 }
@@ -82,6 +89,8 @@ fun TodoDetail(
     enableAddValue: () -> Unit,
     clearDisplayValues: () -> Unit,
     updateTodo: () -> Unit,
+    cancelNotification: () -> Unit,
+    removeRemainder: () -> Unit,
 ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
@@ -186,6 +195,59 @@ fun TodoDetail(
                         Text(text = "No category!", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }else{
                         Text(text = "${todo.category}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ){
+                    Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    if(todo?.remainder == null){
+                        Text(
+                            text = "No remainder!",
+                            color = if (todo?.isDone!!) Color.Gray else Color.Black,
+                        )
+                    }else {
+                        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                        val date = sdf.format(todo?.remainder?.time)
+                        Card(
+                            shape = RoundedCornerShape(3.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .height(25.dp)
+                                    .width(160.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "$date", color = if (todo?.isDone!!) Color.Gray else Color.Black,)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    IconButton(
+                                        onClick = {removeRemainder()},
+                                        enabled = if (todo?.isDone!!) false else true,
+                                        modifier = Modifier
+                                            .then(Modifier.size(20.dp))
+                                            .border(
+                                                0.5.dp, Color.Black,
+                                                shape = CircleShape
+                                            )
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Close,
+                                            contentDescription = "",
+                                            tint = if(todo?.isDone!!) Color.Gray else Color.Black
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))

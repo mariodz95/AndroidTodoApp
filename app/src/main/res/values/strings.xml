@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MovieK</string>
+    <string name="app_name">Todo App</string>
     <string name="todo_details">Todo Detail</string>
     <string name="home_screen">Home Screen</string>
 </resources>

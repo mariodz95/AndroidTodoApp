@@ -1,5 +1,6 @@
 package com.example.todoapp.model
 
+import android.app.PendingIntent
 import java.util.*
 
 data class TodoItem(

@@ -52,12 +52,17 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     val todoDetailsDisplayDetails = mutableStateOf("")
     val addValue = mutableStateOf(true)
 
+    val calendar = Calendar.getInstance()
+
     init{
         getAllTodos(0)
         getAllTodos(1)
     }
 
-    fun deleteTodo(todo: Todo){
+    fun deleteTodo(todo: Todo, context: Context){
+        if(todo.requestCode != null){
+            cancelNotification(todo.requestCode, context)
+        }
         repository.deleteTodo(todo)
     }
 
@@ -73,23 +78,29 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         displayKeyboard.value = if(displayKeyboard.value) false else true
     }
 
+    var requestCode = mutableStateOf(0)
+
+
     fun setRemainder(context: Context){
         if(selectedYear.value != 0){
             val notificationId = (Date().time / 1000L % Int.MAX_VALUE).toInt()
-            val requestCode = (Date().time / 1000L % Int.MAX_VALUE).toInt()
+            requestCode.value = (Date().time / 1000L % Int.MAX_VALUE).toInt()
 
             val intent = Intent(context, AlarmReceiver::class.java)
             intent.putExtra("notificationId", notificationId)
             intent.putExtra("notificationText", taskName.value)
-            intent.putExtra("requestCode", requestCode)
+            intent.putExtra("requestCode", requestCode.value)
 
-            val alarmIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val alarmIntent = PendingIntent.getBroadcast(context, requestCode.value, intent, PendingIntent.FLAG_CANCEL_CURRENT)
             var alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, selectedHour.value);
-            calendar.set(Calendar.MINUTE, selectedMinute.value);
-            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.HOUR_OF_DAY, selectedHour.value)
+            calendar.set(Calendar.MINUTE, selectedMinute.value)
+            calendar.set(Calendar.SECOND, 0)
+
+            calendar.set(Calendar.MONTH, selectedMonth.value);
+            calendar.set(Calendar.DAY_OF_MONTH, selectedDay.value)
+            calendar.set(Calendar.YEAR, selectedYear.value);
 
             alarm.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
         }
@@ -155,7 +166,10 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
             taskName.value,
             taskDetail.value,
             if(selectedIndex.value != -1) items[selectedIndex.value] else null,
-            Calendar.getInstance().getTime()
+            Calendar.getInstance().time,
+            false,
+            requestCode.value,
+            if(selectedYear.value == 0) null else calendar.time
         )
 
         repository.insertTodo(todo)
@@ -188,8 +202,8 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         addValue.value = true
     }
 
-    fun updateTodoName(newDetail: String, todoId: UUID){
-        repository.updateTodoDetail(newDetail, todoId)
+    fun updateTodoName(newName: String, todoId: UUID){
+        repository.updateTodo(newName, todoId)
     }
 
     fun updateTodoDetail(newDetail: String, todoId: UUID){
@@ -211,5 +225,16 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     fun clearDisplayValues(){
         todoDetailDisplayName.value = ""
         todoDetailsDisplayDetails.value = ""
+    }
+
+    fun cancelNotification(requestCode: Int, context: Context){
+        val intent = Intent(context, AlarmReceiver::class.java)
+        val alarmIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+        alarmIntent.cancel()
+    }
+
+    fun removeRemainder(todoId: UUID, requestCode: Int, context: Context){
+        cancelNotification(requestCode, context )
+        repository.removeRemainder(todoId)
     }
 }

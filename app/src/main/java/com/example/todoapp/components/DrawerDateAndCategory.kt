@@ -101,37 +101,15 @@ fun DrawerDateAndCategory(
         }
         Spacer(modifier = Modifier.width(16.dp))
         if(selectedDay != 0){
-            Card(
-                shape = RoundedCornerShape(3.dp)
-            ){
-                Column(
-                    modifier = Modifier
-                        .height(25.dp)
-                        .width(125.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text("$selectedDay/$selectedMonth/$selectedYear $selectedHour:$selectedMinute")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        IconButton(
-                            onClick = {removeDate()},
-                            modifier = Modifier
-                                .then(Modifier.size(20.dp))
-                                .border(
-                                    0.5.dp, Color.Black,
-                                    shape = CircleShape
-                                )
-                        ){
-                            Icon(Icons.Filled.Close, "")
-                        }
-                    }
-                }
-            }
+            RemainderDateCard(
+                selectedDay = selectedDay,
+                selectedMonth = selectedMonth,
+                selectedYear = selectedYear,
+                selectedHour = selectedHour,
+                selectedMinute = selectedMinute,
+                removeDate = removeDate
+            )
         }
     }
 }
-
 

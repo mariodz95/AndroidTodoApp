@@ -3,7 +3,6 @@ package com.example.todoapp.components
 import android.app.*
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
@@ -132,10 +131,10 @@ fun Buttons(
         IconButton(
             onClick = {
                 coroutineScope.launch {
+                    setRemainder(context)
                     insertTodo()
                     keyboardController?.hide()
                     bottomSheetScaffoldState.bottomSheetState.collapse()
-                    setRemainder(context)
                     clearValues()
                 }},
             enabled = if(taskName == "") false else true,
