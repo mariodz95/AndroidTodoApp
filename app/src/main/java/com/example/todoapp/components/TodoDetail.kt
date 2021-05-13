@@ -15,8 +15,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,12 +30,13 @@ import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodoDetailContent(navController: NavHostController, todoString: String?, todoViewModel: TodoViewModel) {
-
     var todo: Todo? = null
     if(todoString != null){
         val gson = Gson()
@@ -45,10 +44,10 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
     }
     todoViewModel.getTodoById(todo?.id!!)
 
-    val todoItem by todoViewModel.todo.observeAsState()
-
     val todoDetailDisplayName = todoViewModel.todoDetailDisplayName.value
     val todoDetailDisplayDetail = todoViewModel.todoDetailsDisplayDetails.value
+    val todoCategoryDisplay = todoViewModel.todoCategoryDisplay.value
+    val todoRemainderDisplay = todoViewModel.todoRemainderDisplay.value
     val addValue = todoViewModel.addValue.value
 
     val expanded = todoViewModel.expanded.value
@@ -82,18 +81,21 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
         todoViewModel.addTodoRemainder(todo.id, context)
     }
 
-    if(todoItem != null) {
+    if(todo != null) {
         if(addValue){
-            todoViewModel.todoDetailDisplayNameChange(todoItem?.name!!)
-            todoViewModel.todoDetailDisplayDetailChange(todoItem?.details!!)
+            todoViewModel.todoDetailDisplayNameChange(todo?.name!!)
+            todoViewModel.todoDetailDisplayDetailChange(todo?.details!!)
+            todoViewModel.todoDetailsCategoryChange(if(todo.category != null) todo?.category!! else "")
+            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            todoViewModel.todoRemainderCategoryChange(if(todo.remainder != null) sdf.format(todo?.remainder).toString() else "")
             todoViewModel.disableAddValue()
         }
         val context = LocalContext.current
         TodoDetail(
             navController = navController,
-            todo = todoItem,
+            todo = todo,
             deleteTodo = {todoViewModel.deleteTodo(it, context)},
-            checkTodo = {todoViewModel.checkTodo(it)},
+            checkTodo = {todoViewModel.checkTodo(it, context)},
             todoDetailDisplayNameChange = { todoViewModel.todoDetailDisplayNameChange(it)},
             todoDetailDisplayDetailChange ={ todoViewModel.todoDetailDisplayDetailChange(it)},
             todoDetailDisplayName = todoDetailDisplayName,
@@ -104,7 +106,9 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
             onExpand = {todoViewModel.onExpand(it)},
             datePickerDialog = datePickerDialog,
-        )
+            todoCategoryDisplay = todoCategoryDisplay,
+            todoRemainderDisplay = todoRemainderDisplay,
+            )
         Dropdown(
             expanded = expanded,
             items = items,
@@ -132,13 +136,15 @@ fun TodoDetail(
     removeRemainder: () -> Unit,
     onExpand: (Boolean) -> Unit,
     datePickerDialog: DatePickerDialog,
+    todoCategoryDisplay: String,
+    todoRemainderDisplay: String
     ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "TopAppBar", color = Color.White)
+                    Text(text = "Details", color = Color.White)
                 },
                 backgroundColor = materialBlue700,
                 navigationIcon = {
@@ -236,11 +242,10 @@ fun TodoDetail(
                     Spacer(modifier = Modifier.width(16.dp))
                     if(todo?.category == null){
                         Text(
-
                             text = "No category!",
                             color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }else{
-                        Text(text = "${todo.category}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
+                        Text(text = "${todoCategoryDisplay}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -259,8 +264,8 @@ fun TodoDetail(
                             color = if (todo?.isDone!!) Color.Gray else Color.Black,
                         )
                     }else {
-                        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-                        val date = sdf.format(todo?.remainder?.time)
+                        Log.v("sada", "${todoRemainderDisplay}")
+
                         Card(
                             shape = RoundedCornerShape(3.dp)
                         ) {
@@ -274,7 +279,7 @@ fun TodoDetail(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(text = "$date", color = if (todo?.isDone!!) Color.Gray else Color.Black,)
+                                    Text(text = todoRemainderDisplay, color = if (todo?.isDone!!) Color.Gray else Color.Black,)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     IconButton(
                                         onClick = {removeRemainder()},

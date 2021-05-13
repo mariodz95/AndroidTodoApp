@@ -1,7 +1,9 @@
 package com.example.todoapp
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -108,6 +111,8 @@ fun HomeScreen(
 
     val height = todoViewModel.height.value
 
+    val context = LocalContext.current
+
     Scaffold(
         topBar = { TopAppBar(
             title = {
@@ -156,7 +161,8 @@ fun HomeScreen(
                 unfinishedTodoList = unfinishedTodoList,
                 finishedTodoList = finishedTodoList,
                 height = height,
-                navController = navController
+                navController = navController,
+                context = context
             )
 
             Dropdown(
@@ -191,7 +197,8 @@ fun HomeContent(
     unfinishedTodoList: List<Todo>,
     finishedTodoList: List<Todo>,
     height: Int,
-    navController: NavHostController
+    navController: NavHostController,
+    context: Context
 ){
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -263,7 +270,7 @@ fun HomeContent(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 items(unfinishedTodoList){ todo ->
-                    TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) }, navController = navController)
+                    TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it, context) }, navController = navController)
                 }
                 item{
                     Row(
@@ -285,7 +292,7 @@ fun HomeContent(
                 }
                 if(isCollapsed) {
                     items(finishedTodoList){ todo ->
-                        TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it) }, navController = navController)
+                        TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it, null) }, navController = navController)
                     }
                 }
             }

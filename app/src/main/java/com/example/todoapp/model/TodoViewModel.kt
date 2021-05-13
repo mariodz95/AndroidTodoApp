@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +13,7 @@ import com.example.todoapp.R
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.repository.TodoRepository
 import com.example.todoapp.util.AlarmReceiver
+import java.text.SimpleDateFormat
 import java.util.*
 
 class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
@@ -49,6 +51,8 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     val todoDetailDisplayName = mutableStateOf("")
     val todoDetailsDisplayDetails = mutableStateOf("")
+    val todoCategoryDisplay = mutableStateOf("")
+    val todoRemainderDisplay = mutableStateOf("")
     val addValue = mutableStateOf(true)
 
     val calendar = Calendar.getInstance()
@@ -56,6 +60,24 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     init{
         getAllTodos(0)
         getAllTodos(1)
+    }
+
+    fun todoRemainderCategoryChange(newRemainder: String){
+        todoRemainderDisplay.value = newRemainder
+    }
+
+    fun todoDetailsCategoryChange(newCategory: String){
+        if(addValue.value){
+            todoCategoryDisplay.value = newCategory
+        }
+    }
+
+    fun todoDetailDisplayNameChange(newName: String){
+        todoDetailDisplayName.value = newName
+    }
+
+    fun todoDetailDisplayDetailChange(newDetail: String){
+        todoDetailsDisplayDetails.value = newDetail
     }
 
     fun deleteTodo(todo: Todo, context: Context){
@@ -136,6 +158,7 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     fun onSelectedIndexChange(index: Int, updateTodo: Boolean, todoId: UUID?){
         selectedIndex.value = index
+        todoCategoryDisplay.value = items[index]
         if(updateTodo){
             addTodoCategory(items[selectedIndex.value], todoId!!)
         }
@@ -185,16 +208,11 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         }
     }
 
-    fun checkTodo(todo: Todo){
+    fun checkTodo(todo: Todo, context: Context?){
+        if(!todo.isDone && todo.remainder != null){
+            cancelNotification(todo.requestCode!!, context!!)
+        }
         repository.updateTodoCheckStatus(if(todo.isDone) false else true, todo.id)
-    }
-
-    fun todoDetailDisplayNameChange(newName: String){
-        todoDetailDisplayName.value = newName
-    }
-
-    fun todoDetailDisplayDetailChange(newDetail: String){
-        todoDetailsDisplayDetails.value = newDetail
     }
 
     fun updateTodo(newName: String, newDetail: String, todoId: UUID){
@@ -253,6 +271,11 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         calendar.set(Calendar.MONTH, selectedMonth.value)
         calendar.set(Calendar.DAY_OF_MONTH, selectedDay.value)
         calendar.set(Calendar.YEAR, selectedYear.value)
+
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val date = sdf.format(calendar.time)
+
+        todoRemainderCategoryChange(date.toString())
 
         repository.addTodoRemainder(todoId, calendar.time)
     }
