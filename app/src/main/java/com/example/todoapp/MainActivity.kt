@@ -164,7 +164,7 @@ fun HomeScreen(
                 expanded = expanded,
                 items = items,
                 onExpand = {todoViewModel.onExpand(it)},
-                onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it)},
+                onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, false, null)},
                 itemsIcons = itemsIcons
                 )
         },

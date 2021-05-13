@@ -39,4 +39,8 @@ class TodoRepository(private val todoDao: TodoDao ) {
     fun removeRemainder(todoId: UUID){
         todoDao.removeRemainder(todoId)
     }
+
+    fun addTodoCategory(category: String, todoId: UUID){
+        todoDao.addTodoCategory(category, todoId)
+    }
 }

@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,6 +51,10 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
     val todoDetailDisplayDetail = todoViewModel.todoDetailsDisplayDetails.value
     val addValue = todoViewModel.addValue.value
 
+    val expanded = todoViewModel.expanded.value
+    val items = todoViewModel.items
+    val itemsIcons = todoViewModel.itemsIcons
+
     if(todoItem != null) {
         if(addValue){
             todoViewModel.todoDetailDisplayNameChange(todoItem?.name!!)
@@ -70,7 +75,15 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             clearDisplayValues ={todoViewModel.clearDisplayValues()},
             updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)},
             cancelNotification = { todoViewModel.cancelNotification(todo.requestCode!!, context) },
-            removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) }
+            removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
+            onExpand = {todoViewModel.onExpand(it)}
+        )
+        Dropdown(
+            expanded = expanded,
+            items = items,
+            onExpand = {todoViewModel.onExpand(it)},
+            onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, true, todo.id)},
+            itemsIcons = itemsIcons
         )
     }
 }
@@ -91,7 +104,8 @@ fun TodoDetail(
     updateTodo: () -> Unit,
     cancelNotification: () -> Unit,
     removeRemainder: () -> Unit,
-){
+    onExpand: (Boolean) -> Unit,
+    ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
         topBar = {
@@ -187,12 +201,17 @@ fun TodoDetail(
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().clickable{
+                        onExpand(true)
+                    }
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
                     if(todo?.category == null){
-                        Text(text = "No category!", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
+                        Text(
+
+                            text = "No category!",
+                            color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }else{
                         Text(text = "${todo.category}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }

@@ -21,7 +21,7 @@ fun Dropdown(
     items: List<String>,
     onExpand: (Boolean) -> Unit,
     onSelectedIndexChange: (Int) -> Unit,
-    itemsIcons: List<Int>
+    itemsIcons: List<Int>,
 ) {
     Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
         DropdownMenu(
@@ -37,7 +37,7 @@ fun Dropdown(
                 }) {
                     Icon(
                         painter = painterResource(id = itemsIcons[index]),
-                        contentDescription = null // decorative element
+                        contentDescription = null
                     )
                     Text(text = item)
                 }

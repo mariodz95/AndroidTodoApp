@@ -135,8 +135,11 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         expanded.value = expand
     }
 
-    fun onSelectedIndexChange(index: Int){
+    fun onSelectedIndexChange(index: Int, updateTodo: Boolean, todoId: UUID?){
         selectedIndex.value = index
+        if(updateTodo){
+            addTodoCategory(items[selectedIndex.value], todoId!!)
+        }
     }
 
     fun addTime(hourOfDay: Int, minuteOfDay: Int){
@@ -236,5 +239,9 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     fun removeRemainder(todoId: UUID, requestCode: Int, context: Context){
         cancelNotification(requestCode, context )
         repository.removeRemainder(todoId)
+    }
+
+    fun addTodoCategory(category: String, todoId: UUID){
+        repository.addTodoCategory(category, todoId)
     }
 }
