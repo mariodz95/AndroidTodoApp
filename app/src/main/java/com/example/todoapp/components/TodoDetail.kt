@@ -228,7 +228,7 @@ fun TodoDetail(
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable{
+                    modifier = if(todo?.isDone!!) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().clickable{
                         onExpand(true)
                     }
                 ){
@@ -246,9 +246,8 @@ fun TodoDetail(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable{
+                    modifier = if(todo?.isDone!!) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().clickable{
                         datePickerDialog.show()
-                        Log.v("sada", "nakon svega")
                     },
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
