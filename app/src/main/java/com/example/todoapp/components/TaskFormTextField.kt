@@ -1,5 +1,7 @@
 package com.example.todoapp.components
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -24,17 +26,25 @@ fun TaskFormTextField(
     bottomSheetScaffoldState: BottomSheetScaffoldState,
     placeholder: String,
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    setRemainder: () -> Unit,
+    insertTodo: () -> Unit,
+    clearValues: () -> Unit,
+    displayDone: Boolean
 ){
     TextField(
         modifier = Modifier.focusRequester(focusRequester),
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(imeAction =  ImeAction.Done) ,
         keyboardActions = KeyboardActions(
             onDone = {
-                coroutineScope.launch {
-                    keyboardController?.hide()
-                    bottomSheetScaffoldState.bottomSheetState.collapse()
-                    onValueChange("")
+                if(displayDone) {
+                    coroutineScope.launch {
+                        setRemainder()
+                        insertTodo()
+                        keyboardController?.hide()
+                        bottomSheetScaffoldState.bottomSheetState.collapse()
+                        clearValues()
+                    }
                 }
             }),
         value = value,

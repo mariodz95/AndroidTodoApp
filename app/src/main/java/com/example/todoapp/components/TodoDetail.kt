@@ -34,12 +34,10 @@ import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TodoDetailContent(navController: NavHostController, todoString: String?, todoViewModel: TodoViewModel) {
-    var todo: Todo? = null
-    if(todoString != null){
-        val gson = Gson()
-        todo = gson.fromJson(todoString, Todo::class.java)
-    }
+fun TodoDetailContent(navController: NavHostController, todoString: String, todoViewModel: TodoViewModel) {
+    val gson = Gson()
+    val todo = gson.fromJson(todoString, Todo::class.java)
+
     todoViewModel.getTodoById(todo?.id!!)
 
     val todoDetailDisplayName = todoViewModel.todoDetailDisplayName.value
@@ -79,44 +77,41 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
         todoViewModel.addTodoRemainder(todo.id, context)
     }
 
-    if(todo != null) {
-        if(addValue){
-            todoViewModel.todoDetailDisplayNameChange(todo?.name!!)
-            todoViewModel.todoDetailDisplayDetailChange(todo?.details!!)
-            todoViewModel.todoDetailsCategoryChange(if(todo.category != null) todo?.category!! else "")
-            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-            todoViewModel.todoRemainderCategoryChange(if(todo.remainder != null) sdf.format(todo?.remainder).toString() else "")
-            todoViewModel.disableAddValue()
-        }
-        val context = LocalContext.current
-        TodoDetail(
-            navController = navController,
-            todo = todo,
-            deleteTodo = {todoViewModel.deleteTodo(it, context)},
-            checkTodo = {todoViewModel.checkTodo(it, context)},
-            todoDetailDisplayNameChange = { todoViewModel.todoDetailDisplayNameChange(it)},
-            todoDetailDisplayDetailChange ={ todoViewModel.todoDetailDisplayDetailChange(it)},
-            todoDetailDisplayName = todoDetailDisplayName,
-            todoDetailDisplayDetail = todoDetailDisplayDetail,
-            enableAddValue = {todoViewModel.enableAddValue()},
-            clearDisplayValues ={todoViewModel.clearDisplayValues()},
-            updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)},
-            removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
-            onExpand = {todoViewModel.onExpand(it)},
-            datePickerDialog = datePickerDialog,
-            todoCategoryDisplay = todoCategoryDisplay,
-            todoRemainderDisplay = todoRemainderDisplay,
-            clearValues = {todoViewModel.clearValues()},
-            removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)}
-            )
-        Dropdown(
-            expanded = expanded,
-            items = items,
-            onExpand = {todoViewModel.onExpand(it)},
-            onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, true, todo.id)},
-            itemsIcons = itemsIcons
-        )
+    if(addValue){
+        todoViewModel.todoDetailDisplayNameChange(todo?.name!!)
+        todoViewModel.todoDetailDisplayDetailChange(todo?.details!!)
+        todoViewModel.todoDetailsCategoryChange(if(todo.category != null) todo?.category!! else "")
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        todoViewModel.todoRemainderCategoryChange(if(todo.remainder != null) sdf.format(todo?.remainder).toString() else "")
+        todoViewModel.disableAddValue()
     }
+    TodoDetail(
+        navController = navController,
+        todo = todo,
+        deleteTodo = {todoViewModel.deleteTodo(it, context)},
+        checkTodo = {todoViewModel.checkTodo(it, context)},
+        todoDetailDisplayNameChange = { todoViewModel.todoDetailDisplayNameChange(it)},
+        todoDetailDisplayDetailChange ={ todoViewModel.todoDetailDisplayDetailChange(it)},
+        todoDetailDisplayName = todoDetailDisplayName,
+        todoDetailDisplayDetail = todoDetailDisplayDetail,
+        enableAddValue = {todoViewModel.enableAddValue()},
+        clearDisplayValues ={todoViewModel.clearDisplayValues()},
+        updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)},
+        removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
+        onExpand = {todoViewModel.onExpand(it)},
+        datePickerDialog = datePickerDialog,
+        todoCategoryDisplay = todoCategoryDisplay,
+        todoRemainderDisplay = todoRemainderDisplay,
+        clearValues = {todoViewModel.clearValues()},
+        removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)}
+        )
+    Dropdown(
+        expanded = expanded,
+        items = items,
+        onExpand = {todoViewModel.onExpand(it)},
+        onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, true, todo.id)},
+        itemsIcons = itemsIcons
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

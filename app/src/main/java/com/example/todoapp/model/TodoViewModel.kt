@@ -57,6 +57,8 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     val calendar = Calendar.getInstance()
 
+    var displayDone = mutableStateOf(false)
+
     init{
         getAllTodos(0)
         getAllTodos(1)
@@ -89,7 +91,7 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
     fun addDrawerHeight(){
         if(displayTaskDetails.value){
-            height.value = 70
+            height.value = 90
         }else{
             height.value = 0
         }
@@ -136,7 +138,9 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     }
 
     fun onTaskNameChange(name: String){
+        Log.v("sada", "mijenja se")
         taskName.value = name
+        displayDone.value = true
     }
 
     fun onTaskDetailChange(name: String){
@@ -144,6 +148,7 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     }
 
     fun clearValues(){
+        displayDone.value = false
         taskName.value = ""
         taskDetail.value = ""
         removeCategory()

@@ -66,11 +66,10 @@ class MainActivity : ComponentActivity() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
 
-
             NavHost(navController, startDestination = "homeScreen") {
                 composable(Screen.HomeScreen.route) { HomeScreen(bottomSheetScaffoldState, todoViewModel, navController) }
                 composable(Screen.TodoDetailContent.route) { backStackEntry ->
-                    TodoDetailContent(navController, backStackEntry.arguments?.getString("todo"), todoViewModel)
+                    TodoDetailContent(navController, backStackEntry.arguments?.getString("todo")!!, todoViewModel)
                 }
             }
                 }
@@ -113,6 +112,7 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
+    val displayDone = todoViewModel.displayDone.value
     Scaffold(
         topBar = { TopAppBar(
             title = {
@@ -162,7 +162,10 @@ fun HomeScreen(
                 finishedTodoList = finishedTodoList,
                 height = height,
                 navController = navController,
-                context = context
+                context = context,
+                insertTodo = {todoViewModel.insertTodo()},
+                setRemainder = {todoViewModel.setRemainder(context)},
+                displayDone = displayDone
             )
 
             Dropdown(
@@ -198,7 +201,10 @@ fun HomeContent(
     finishedTodoList: List<Todo>,
     height: Int,
     navController: NavHostController,
-    context: Context
+    context: Context,
+    insertTodo: () -> Unit,
+    setRemainder: () -> Unit,
+    displayDone: Boolean
 ){
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -206,7 +212,7 @@ fun HomeContent(
             Box (
                 Modifier
                     .fillMaxWidth()
-                    .height(400.dp + height.dp)
+                    .height(410.dp + height.dp)
                     .padding(20.dp),
                 contentAlignment = Alignment.TopCenter,
             ) {
@@ -224,7 +230,10 @@ fun HomeContent(
                         placeholder = "New task",
                         value = taskName,
                         onValueChange = onTaskNameChange,
-
+                        setRemainder =  setRemainder,
+                        insertTodo = insertTodo,
+                        clearValues = clearValues,
+                        displayDone = displayDone
                     )
                     if(displayTaskDetails) {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -236,7 +245,10 @@ fun HomeContent(
                             placeholder = "Task Detail",
                             value = taskDetail,
                             onValueChange = onTaskDetailChange,
-
+                            setRemainder =  setRemainder,
+                            insertTodo = insertTodo,
+                            clearValues = clearValues,
+                            displayDone = displayDone
                             )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -272,21 +284,27 @@ fun HomeContent(
                 items(unfinishedTodoList){ todo ->
                     TodoListRow(todo = todo, checked = { todoViewModel.checkTodo(it, context) }, navController = navController)
                 }
-                item{
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                collapse()
+
+                item {
+                    if (finishedTodoList.size > 0) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    collapse()
+                                }
+                                .padding(10.dp)
+                        ) {
+                            Text("Done", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(" (${finishedTodoList.size})")
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(onClick = { collapse() }) {
+                                Icon(
+                                    if (isCollapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
+                                    ""
+                                )
                             }
-                            .padding(10.dp)
-                    ){
-                        Text("Done", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text(" (${finishedTodoList.size})")
-                        Spacer(modifier = Modifier.width(16.dp))
-                        IconButton(onClick = {collapse() }) {
-                            Icon(if(isCollapsed) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp, "")
                         }
                     }
                 }
