@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,12 +41,10 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
     val todo = gson.fromJson(todoString, Todo::class.java)
 
     todoViewModel.getTodoById(todo?.id!!)
-    val todoItem = todoViewModel.todo.value
+    val todoItem = todoViewModel.todo.observeAsState().value
 
     val todoDetailDisplayName = todoViewModel.todoDetailDisplayName.value
     val todoDetailDisplayDetail = todoViewModel.todoDetailsDisplayDetails.value
-    val todoCategoryDisplay = todoViewModel.todoCategoryDisplay.value
-    val todoRemainderDisplay = todoViewModel.todoRemainderDisplay.value
     val addValue = todoViewModel.addValue.value
 
     val expanded = todoViewModel.expanded.value
@@ -79,47 +78,47 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
         todoViewModel.addTodoRemainder(todo.id, context)
     }
 
-    if(addValue){
-        todoViewModel.todoDetailDisplayNameChange(todo?.name!!)
-        todoViewModel.todoDetailDisplayDetailChange(todo?.details!!)
-        todoViewModel.todoDetailsCategoryChange(if(todo.category != null) todo?.category!! else "")
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-        todoViewModel.todoRemainderCategoryChange(if(todo.remainder != null) sdf.format(todo?.remainder).toString() else "")
-        todoViewModel.disableAddValue()
-    }
-    TodoDetail(
-        navController = navController,
-        todo = todo,
-        deleteTodo = {todoViewModel.deleteTodo(it, context)},
-        checkTodo = {todoViewModel.checkTodo(it, context)},
-        todoDetailDisplayNameChange = { todoViewModel.todoDetailDisplayNameChange(it)},
-        todoDetailDisplayDetailChange ={ todoViewModel.todoDetailDisplayDetailChange(it)},
-        todoDetailDisplayName = todoDetailDisplayName,
-        todoDetailDisplayDetail = todoDetailDisplayDetail,
-        enableAddValue = {todoViewModel.enableAddValue()},
-        clearDisplayValues ={todoViewModel.clearDisplayValues()},
-        updateTodo = {todoViewModel.updateTodo(todo.id)},
-        removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
-        onExpand = {todoViewModel.onExpand(it)},
-        datePickerDialog = datePickerDialog,
-        todoCategoryDisplay = todoCategoryDisplay,
-        todoRemainderDisplay = todoRemainderDisplay,
-        clearValues = {todoViewModel.clearValues()},
-        removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)}
+    if(todoItem != null){
+        if(addValue){
+            todoViewModel.todoDetailDisplayNameChange(todo?.name!!)
+            todoViewModel.todoDetailDisplayDetailChange(todo?.details!!)
+            todoViewModel.todoDetailsCategoryChange(if(todo.category != null) todo?.category!! else "")
+            val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            todoViewModel.todoRemainderCategoryChange(if(todo.remainder != null) sdf.format(todo?.remainder).toString() else "")
+            todoViewModel.disableAddValue()
+        }
+        TodoDetail(
+            navController = navController,
+            todo = todoItem,
+            deleteTodo = {todoViewModel.deleteTodo(it, context)},
+            checkTodo = {todoViewModel.checkTodo(it, context)},
+            todoDetailDisplayNameChange = { todoViewModel.todoDetailDisplayNameChange(it)},
+            todoDetailDisplayDetailChange ={ todoViewModel.todoDetailDisplayDetailChange(it)},
+            todoDetailDisplayName = todoDetailDisplayName,
+            todoDetailDisplayDetail = todoDetailDisplayDetail,
+            enableAddValue = {todoViewModel.enableAddValue()},
+            clearDisplayValues ={todoViewModel.clearDisplayValues()},
+            updateTodo = {todoViewModel.updateTodo(todo.id)},
+            removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
+            onExpand = {todoViewModel.onExpand(it)},
+            datePickerDialog = datePickerDialog,
+            clearValues = {todoViewModel.clearValues()},
+            removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)}
         )
-    Dropdown(
-        expanded = expanded,
-        items = items,
-        onExpand = {todoViewModel.onExpand(it)},
-        onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, true, todo.id)},
-        itemsIcons = itemsIcons
-    )
+        Dropdown(
+            expanded = expanded,
+            items = items,
+            onExpand = {todoViewModel.onExpand(it)},
+            onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, true, todo.id)},
+            itemsIcons = itemsIcons
+        )
 
-    DisposableEffect(todo) {
-        onDispose {
-            todoViewModel.clearValues()
-            todoViewModel.clearDisplayValues()
-            todoViewModel.enableAddValue()
+        DisposableEffect(todo) {
+            onDispose {
+                todoViewModel.clearValues()
+                todoViewModel.clearDisplayValues()
+                todoViewModel.enableAddValue()
+            }
         }
     }
 }
@@ -128,7 +127,7 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
 @Composable
 fun TodoDetail(
     navController: NavHostController,
-    todo: Todo?,
+    todo: Todo,
     deleteTodo: (Todo) -> Unit,
     checkTodo: (Todo) -> Unit,
     todoDetailDisplayNameChange: (String) -> Unit,
@@ -141,8 +140,6 @@ fun TodoDetail(
     removeRemainder: () -> Unit,
     onExpand: (Boolean) -> Unit,
     datePickerDialog: DatePickerDialog,
-    todoCategoryDisplay: String,
-    todoRemainderDisplay: String,
     clearValues : () -> Unit,
     removeDateDisplay: () -> Unit,
     ){
@@ -250,12 +247,12 @@ fun TodoDetail(
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
-                    if(todoCategoryDisplay == ""){
+                    if(todo.category == null){
                         Text(
                             text = "No category!",
                             color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }else{
-                        TodoDetailCategoryCard(todoCategoryDisplay = todoCategoryDisplay, removeDateDisplay = removeDateDisplay)
+                        TodoDetailCategoryCard(category = todo.category, removeDateDisplay = removeDateDisplay)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -269,14 +266,14 @@ fun TodoDetail(
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
-                    if(todoRemainderDisplay == ""){
+                    if(todo.remainder == null){
                         Text(
                             text = "No remainder!",
                             color = if (todo?.isDone!!) Color.Gray else Color.Black,
                         )
                     }else {
                         TodoDetailRemainderCard(
-                            todoRemainderDisplay = todoRemainderDisplay,
+                            date = todo.remainder,
                             todo = todo,
                             removeRemainder = removeRemainder
                         )
@@ -290,7 +287,7 @@ fun TodoDetail(
                     Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
                     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-                    val date = sdf.format(todo?.dateAdded?.time)
+                    val date = sdf.format(todo.dateAdded?.time)
                     Text(text = "Created at: ${date}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                 }
             } },
@@ -299,7 +296,7 @@ fun TodoDetail(
 
 @Composable
 fun TodoDetailCategoryCard(
-    todoCategoryDisplay: String,
+    category: String,
     removeDateDisplay: () -> Unit
 ){
     Card(
@@ -316,7 +313,7 @@ fun TodoDetailCategoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = todoCategoryDisplay)
+                Text(text = category)
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(
                     onClick = {removeDateDisplay()},
@@ -336,7 +333,7 @@ fun TodoDetailCategoryCard(
 
 @Composable
 fun TodoDetailRemainderCard(
-    todoRemainderDisplay: String,
+    date: Date,
     todo: Todo,
     removeRemainder: () -> Unit,
 ){
@@ -353,8 +350,10 @@ fun TodoDetailRemainderCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                val formatedDate = sdf.format(date)
                 Text(
-                    text = todoRemainderDisplay,
+                    text = formatedDate,
                     color = if (todo?.isDone!!) Color.Gray else Color.Black)
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(
