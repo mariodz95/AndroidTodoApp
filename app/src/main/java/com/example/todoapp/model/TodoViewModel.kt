@@ -254,6 +254,7 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     }
 
     fun removeRemainder(todoId: UUID, requestCode: Int, context: Context){
+        todoRemainderDisplay.value = ""
         cancelNotification(requestCode, context )
         repository.removeRemainder(todoId)
     }

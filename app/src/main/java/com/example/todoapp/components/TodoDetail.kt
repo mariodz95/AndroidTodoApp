@@ -108,6 +108,7 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             datePickerDialog = datePickerDialog,
             todoCategoryDisplay = todoCategoryDisplay,
             todoRemainderDisplay = todoRemainderDisplay,
+            clearValues = {todoViewModel.clearValues()}
             )
         Dropdown(
             expanded = expanded,
@@ -137,7 +138,8 @@ fun TodoDetail(
     onExpand: (Boolean) -> Unit,
     datePickerDialog: DatePickerDialog,
     todoCategoryDisplay: String,
-    todoRemainderDisplay: String
+    todoRemainderDisplay: String,
+    clearValues : () -> Unit,
     ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
@@ -152,6 +154,7 @@ fun TodoDetail(
                         updateTodo()
                         clearDisplayValues()
                         enableAddValue()
+                        clearValues()
                         navController.popBackStack()
                     }) {
                         Icon(Icons.Filled.ArrowBack, "", tint = Color.White)
@@ -240,7 +243,7 @@ fun TodoDetail(
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
-                    if(todo?.category == null){
+                    if(todoCategoryDisplay == ""){
                         Text(
                             text = "No category!",
                             color = if(todo?.isDone!!) Color.Gray else Color.Black,)
@@ -258,14 +261,12 @@ fun TodoDetail(
                     Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    if(todo?.remainder == null){
+                    if(todoRemainderDisplay == ""){
                         Text(
                             text = "No remainder!",
                             color = if (todo?.isDone!!) Color.Gray else Color.Black,
                         )
                     }else {
-                        Log.v("sada", "${todoRemainderDisplay}")
-
                         Card(
                             shape = RoundedCornerShape(3.dp)
                         ) {
@@ -279,7 +280,9 @@ fun TodoDetail(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(text = todoRemainderDisplay, color = if (todo?.isDone!!) Color.Gray else Color.Black,)
+                                    Text(
+                                        text = todoRemainderDisplay,
+                                        color = if (todo?.isDone!!) Color.Gray else Color.Black)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     IconButton(
                                         onClick = {removeRemainder()},
@@ -299,7 +302,6 @@ fun TodoDetail(
                                     }
                                 }
                             }
-
                         }
                     }
                 }
