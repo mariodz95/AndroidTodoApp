@@ -280,4 +280,9 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
 
         repository.addTodoRemainder(todoId, calendar.time)
     }
+
+    fun removeDateDisplay(todoId: UUID){
+        todoCategoryDisplay.value = ""
+        repository.addTodoCategory(null, todoId)
+    }
 }

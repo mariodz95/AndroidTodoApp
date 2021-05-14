@@ -30,8 +30,6 @@ import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -108,7 +106,8 @@ fun TodoDetailContent(navController: NavHostController, todoString: String?, tod
             datePickerDialog = datePickerDialog,
             todoCategoryDisplay = todoCategoryDisplay,
             todoRemainderDisplay = todoRemainderDisplay,
-            clearValues = {todoViewModel.clearValues()}
+            clearValues = {todoViewModel.clearValues()},
+            removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)}
             )
         Dropdown(
             expanded = expanded,
@@ -140,6 +139,7 @@ fun TodoDetail(
     todoCategoryDisplay: String,
     todoRemainderDisplay: String,
     clearValues : () -> Unit,
+    removeDateDisplay: () -> Unit,
     ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
@@ -237,9 +237,11 @@ fun TodoDetail(
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = if(todo?.isDone!!) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().clickable{
-                        onExpand(true)
-                    }
+                    modifier = if(todo?.isDone!!) Modifier.fillMaxWidth() else Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onExpand(true)
+                        }
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_category_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
@@ -248,61 +250,31 @@ fun TodoDetail(
                             text = "No category!",
                             color = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     }else{
-                        Text(text = "${todoCategoryDisplay}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
+                        TodoDetailCategoryCard(todoCategoryDisplay = todoCategoryDisplay, removeDateDisplay = removeDateDisplay)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = if(todo?.isDone!!) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().clickable{
-                        datePickerDialog.show()
-                    },
+                    modifier = if(todo?.isDone!!) Modifier.fillMaxWidth() else Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            datePickerDialog.show()
+                        },
                 ){
                     Icon( painter = painterResource(R.drawable.ic_baseline_date_range_24), "", tint = if(todo?.isDone!!) Color.Gray else Color.Black,)
                     Spacer(modifier = Modifier.width(16.dp))
-
                     if(todoRemainderDisplay == ""){
                         Text(
                             text = "No remainder!",
                             color = if (todo?.isDone!!) Color.Gray else Color.Black,
                         )
                     }else {
-                        Card(
-                            shape = RoundedCornerShape(3.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .height(25.dp)
-                                    .width(160.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = todoRemainderDisplay,
-                                        color = if (todo?.isDone!!) Color.Gray else Color.Black)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    IconButton(
-                                        onClick = {removeRemainder()},
-                                        enabled = if (todo?.isDone!!) false else true,
-                                        modifier = Modifier
-                                            .then(Modifier.size(20.dp))
-                                            .border(
-                                                0.5.dp, Color.Black,
-                                                shape = CircleShape
-                                            )
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.Close,
-                                            contentDescription = "",
-                                            tint = if(todo?.isDone!!) Color.Gray else Color.Black
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        TodoDetailRemainderCard(
+                            todoRemainderDisplay = todoRemainderDisplay,
+                            todo = todo,
+                            removeRemainder = removeRemainder
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -318,4 +290,85 @@ fun TodoDetail(
                 }
             } },
         )
+}
+
+@Composable
+fun TodoDetailCategoryCard(
+    todoCategoryDisplay: String,
+    removeDateDisplay: () -> Unit
+){
+    Card(
+        shape = RoundedCornerShape(3.dp),
+    ){
+        Column(
+            modifier = Modifier
+                .height(25.dp)
+                .width(125.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = todoCategoryDisplay)
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = {removeDateDisplay()},
+                    modifier = Modifier
+                        .then(Modifier.size(20.dp))
+                        .border(
+                            0.5.dp, Color.Black,
+                            shape = CircleShape
+                        )
+                ){
+                    Icon(Icons.Filled.Close, "")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TodoDetailRemainderCard(
+    todoRemainderDisplay: String,
+    todo: Todo,
+    removeRemainder: () -> Unit,
+){
+    Card(
+        shape = RoundedCornerShape(3.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .height(25.dp)
+                .width(160.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = todoRemainderDisplay,
+                    color = if (todo?.isDone!!) Color.Gray else Color.Black)
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = {removeRemainder()},
+                    enabled = if (todo?.isDone!!) false else true,
+                    modifier = Modifier
+                        .then(Modifier.size(20.dp))
+                        .border(
+                            0.5.dp, Color.Black,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = "",
+                        tint = if(todo?.isDone!!) Color.Gray else Color.Black
+                    )
+                }
+            }
+        }
+    }
 }
