@@ -138,7 +138,6 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     }
 
     fun onTaskNameChange(name: String){
-        Log.v("sada", "mijenja se")
         taskName.value = name
         displayDone.value = true
     }
@@ -220,9 +219,9 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
         repository.updateTodoCheckStatus(if(todo.isDone) false else true, todo.id)
     }
 
-    fun updateTodo(newName: String, newDetail: String, todoId: UUID){
-        updateTodoName(newName, todoId)
-        updateTodoDetail(newDetail, todoId)
+    fun updateTodo(todoId: UUID){
+        updateTodoName(todoDetailDisplayName.value, todoId)
+        updateTodoDetail(todoDetailsDisplayDetails.value, todoId)
         clearDisplayValues()
         addValue.value = true
     }

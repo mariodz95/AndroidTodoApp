@@ -1,11 +1,13 @@
 package com.example.todoapp.util
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.compose.material.R
@@ -23,6 +25,7 @@ class AlarmReceiver: BroadcastReceiver() {
 
         val myNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             var channelName = "My Notification"
             var importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -30,6 +33,9 @@ class AlarmReceiver: BroadcastReceiver() {
             val channel = NotificationChannel("channel_id", channelName, importance)
             myNotificationManager.createNotificationChannel(channel)
         }
+
+        val actionIntent = PendingIntent.getBroadcast(context, requestCode, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
         val notification = NotificationCompat.Builder(context, "channel_id" )
             .setContentTitle("Hey, new task awaiting you!")
             .setContentText(message)

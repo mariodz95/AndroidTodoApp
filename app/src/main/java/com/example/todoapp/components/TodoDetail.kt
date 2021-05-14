@@ -15,6 +15,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +40,7 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
     val todo = gson.fromJson(todoString, Todo::class.java)
 
     todoViewModel.getTodoById(todo?.id!!)
+    val todoItem = todoViewModel.todo.value
 
     val todoDetailDisplayName = todoViewModel.todoDetailDisplayName.value
     val todoDetailDisplayDetail = todoViewModel.todoDetailsDisplayDetails.value
@@ -96,7 +98,7 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
         todoDetailDisplayDetail = todoDetailDisplayDetail,
         enableAddValue = {todoViewModel.enableAddValue()},
         clearDisplayValues ={todoViewModel.clearDisplayValues()},
-        updateTodo = {todoViewModel.updateTodo(todoDetailDisplayName, todoDetailDisplayDetail, todo.id)},
+        updateTodo = {todoViewModel.updateTodo(todo.id)},
         removeRemainder = { todoViewModel.removeRemainder(todo.id, todo.requestCode!!, context) },
         onExpand = {todoViewModel.onExpand(it)},
         datePickerDialog = datePickerDialog,
@@ -112,6 +114,14 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
         onSelectedIndexChange = {todoViewModel.onSelectedIndexChange(it, true, todo.id)},
         itemsIcons = itemsIcons
     )
+
+    DisposableEffect(todo) {
+        onDispose {
+            todoViewModel.clearValues()
+            todoViewModel.clearDisplayValues()
+            todoViewModel.enableAddValue()
+        }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
