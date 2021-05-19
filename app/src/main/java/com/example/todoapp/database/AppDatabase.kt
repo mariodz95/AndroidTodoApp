@@ -8,7 +8,7 @@ import com.example.todoapp.database.entity.Todo
 
 import com.example.todoapp.util.RoomDateConverter;
 
-@Database(entities = [Todo::class,], version = 4, exportSchema = false)
+@Database(entities = [Todo::class,], version = 5, exportSchema = false)
 @TypeConverters(RoomDateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao

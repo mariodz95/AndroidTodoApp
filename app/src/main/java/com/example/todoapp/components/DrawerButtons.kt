@@ -8,15 +8,14 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.navigate
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +30,9 @@ fun DrawerButtonsContent(
     todoViewModel: TodoViewModel,
     bottomSheetScaffoldState: BottomSheetScaffoldState,
     coroutineScope: CoroutineScope,
-    keyboardController: SoftwareKeyboardController?
-    ){
+    keyboardController: SoftwareKeyboardController?,
+    navController: NavHostController
+){
     val c = Calendar.getInstance()
     val year = c.get(Calendar.YEAR)
     val month = c.get(Calendar.MONTH)
@@ -70,8 +70,10 @@ fun DrawerButtonsContent(
         clearValues = {todoViewModel.clearValues()},
         setRemainder = {todoViewModel.setRemainder(it)},
         keyboardController = keyboardController,
-        addDrawerHeight = {todoViewModel.addDrawerHeight()}
-        )
+        addDrawerHeight = {todoViewModel.addDrawerHeight()},
+        navController = navController
+
+    )
 }
 
 @ExperimentalComposeUiApi
@@ -90,7 +92,8 @@ fun Buttons(
     setRemainder: (Context) -> Unit,
     keyboardController: SoftwareKeyboardController?,
     addDrawerHeight: () -> Unit,
-    ){
+    navController: NavHostController
+){
     val context = LocalContext.current
 
     Row(){
@@ -124,6 +127,17 @@ fun Buttons(
         ){
             Icon(
                 Icons.Filled.DateRange,
+                contentDescription = "",
+                tint = Color.Blue
+            )
+        }
+        IconButton(
+            onClick = {
+                navController.navigate("mapScreen")
+            },
+        ){
+            Icon(
+                Icons.Filled.LocationOn,
                 contentDescription = "",
                 tint = Color.Blue
             )

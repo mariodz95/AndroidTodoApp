@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,8 @@ import androidx.navigation.NavHostController
 import com.example.todoapp.R
 import com.example.todoapp.database.entity.Todo
 import com.example.todoapp.model.TodoViewModel
+import com.example.todoapp.util.rememberMapViewWithLifecycle
+import com.google.android.gms.maps.MapView
 import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.*
@@ -78,6 +81,8 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
         todoViewModel.addTodoRemainder(todo.id, context)
     }
 
+    val mapView = rememberMapViewWithLifecycle()
+
     if(todoItem != null){
         if(addValue){
             todoViewModel.todoDetailDisplayNameChange(todo?.name!!)
@@ -103,7 +108,8 @@ fun TodoDetailContent(navController: NavHostController, todoString: String, todo
             onExpand = {todoViewModel.onExpand(it)},
             datePickerDialog = datePickerDialog,
             clearValues = {todoViewModel.clearValues()},
-            removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)}
+            removeDateDisplay = {todoViewModel.removeDateDisplay(todo.id)},
+            mapView = mapView
         )
         Dropdown(
             expanded = expanded,
@@ -142,6 +148,7 @@ fun TodoDetail(
     datePickerDialog: DatePickerDialog,
     clearValues : () -> Unit,
     removeDateDisplay: () -> Unit,
+    mapView: MapView
     ){
     val materialBlue700= Color(0xFF1976D2)
     Scaffold(
@@ -289,6 +296,18 @@ fun TodoDetail(
                     val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
                     val date = sdf.format(todo.dateAdded?.time)
                     Text(text = "Created at: ${date}", color = if(todo?.isDone!!) Color.Gray else Color.Black,)
+                }
+                Column(modifier = Modifier.padding(16.dp)) {
+                if(todo.latitude != 0.0 && todo.longitude != 0.0) {
+                        MapViewContainer(
+                            map = mapView,
+                            latitude = todo.latitude.toString(),
+                            longitude = todo.longitude.toString(),
+                            saveLongitude = { },
+                            saveLatitude = {},
+                            fixed = true,
+                        )
+                    }
                 }
             } },
         )

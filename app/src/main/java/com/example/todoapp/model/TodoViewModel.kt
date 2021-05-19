@@ -54,14 +54,44 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     val todoCategoryDisplay = mutableStateOf("")
     val todoRemainderDisplay = mutableStateOf("")
     val addValue = mutableStateOf(true)
-
     val calendar = Calendar.getInstance()
-
     var displayDone = mutableStateOf(false)
+
+    var longitude =  mutableStateOf("0")
+    var latitude =  mutableStateOf("0")
+
+    var savedLongitude = mutableStateOf(0.0)
+    var savedLatitude = mutableStateOf(0.0)
+
+    var lastChosenLongitude = mutableStateOf(0.0)
+    var lastChosenLatitude = mutableStateOf(0.0)
 
     init{
         getAllTodos(0)
         getAllTodos(1)
+    }
+
+    fun saveLastChosenLocation(){
+        lastChosenLongitude.value = savedLongitude.value
+        lastChosenLatitude.value = savedLatitude.value
+    }
+
+    fun clearSavedLongitudeAndLatitude(){
+        savedLongitude.value = 0.0
+        savedLatitude.value = 0.0
+    }
+
+    fun saveLongitude(longitude: Double){
+        savedLongitude.value = longitude
+    }
+
+    fun saveLatitude(latitude: Double){
+        savedLatitude.value = latitude
+    }
+
+    fun changeLongitudeAndLatitude(newLongitude: String, newLatitude: String){
+        longitude.value = newLongitude
+        latitude.value = newLatitude
     }
 
     fun todoRemainderCategoryChange(newRemainder: String){
@@ -102,7 +132,6 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
     }
 
     var requestCode = mutableStateOf(0)
-
 
     fun setRemainder(context: Context){
         if(selectedYear.value != 0){
@@ -198,8 +227,13 @@ class TodoViewModel(private val repository: TodoRepository ) : ViewModel(){
             Calendar.getInstance().time,
             false,
             requestCode.value,
-            if(selectedYear.value == 0) null else calendar.time
+            if(selectedYear.value == 0) null else calendar.time,
+            savedLongitude.value,
+            savedLatitude.value
         )
+
+        lastChosenLongitude.value = 0.0
+        lastChosenLatitude.value = 0.0
 
         repository.insertTodo(todo)
     }

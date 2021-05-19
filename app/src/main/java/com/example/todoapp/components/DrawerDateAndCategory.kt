@@ -5,11 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.todoapp.model.TodoViewModel
 
 @Composable
-fun DrawerDateAndCategoryContent(todoViewModel: TodoViewModel){
-
+fun DrawerDateAndCategoryContent(
+    todoViewModel: TodoViewModel,
+){
     var selectedIndex = todoViewModel.selectedIndex.value
     val items = todoViewModel.items
     val itemsIcons = todoViewModel.itemsIcons

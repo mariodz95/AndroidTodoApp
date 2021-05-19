@@ -17,5 +17,6 @@ data class Todo (
     @ColumnInfo(name = "isDone") val isDone: Boolean = false,
     @ColumnInfo(name = "requestCode") val requestCode: Int? = null,
     @ColumnInfo(name = "remainder") val remainder: Date? = null,
-
+    @ColumnInfo(name = "longitude") val longitude: Double? = null,
+    @ColumnInfo(name = "latitude") val latitude: Double? = null,
     )
